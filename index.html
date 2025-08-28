@@ -471,6 +471,10 @@
             
             /* Use fixed background on desktop for parallax effect */
             background-attachment: fixed;
+            
+            /* Ensure proper mobile viewport handling */
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
         }
 
         /* Enhanced video positioning */
@@ -501,6 +505,135 @@
             
             /* Ensure video doesn't interfere with text readability */
             filter: brightness(0.9) contrast(1.1);
+            
+            /* Video Control Styles - Ensure consistent behavior across all devices */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            
+            /* Prevent video from being dragged or selected */
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+            
+            /* Ensure video doesn't interfere with touch events */
+            touch-action: none;
+            
+            /* Force video to stay paused after ending */
+            animation: none;
+            transition: none;
+        }
+        
+        /* Video Control States */
+        .hero-background-video.ended {
+            /* When video ends, ensure it stays frozen */
+            animation-play-state: paused;
+            -webkit-animation-play-state: paused;
+        }
+        
+        .hero-background-video.paused {
+            /* When video is paused, maintain last frame */
+            animation-play-state: paused;
+            -webkit-animation-play-state: paused;
+        }
+        
+        /* Ensure video doesn't loop on any device or browser */
+        .hero-background-video::-webkit-media-controls {
+            display: none !important;
+        }
+        
+        .hero-background-video::-webkit-media-controls-panel {
+            display: none !important;
+        }
+        
+        .hero-background-video::-webkit-media-controls-play-button {
+            display: none !important;
+        }
+        
+        .hero-background-video::-webkit-media-controls-start-playback-button {
+            display: none !important;
+        }
+        
+        /* Mobile-specific video control styles */
+        @media (max-width: 768px) {
+            .hero-background-video {
+                /* Ensure video behavior is consistent on mobile */
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                -khtml-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+                
+                /* Prevent mobile video controls */
+                -webkit-media-controls: none;
+                -webkit-media-controls-panel: none;
+                -webkit-media-controls-play-button: none;
+                -webkit-media-controls-start-playback-button: none;
+                
+                /* Ensure video stays frozen after ending on mobile */
+                pointer-events: none;
+                touch-action: none;
+            }
+            
+            .hero-background-video.ended {
+                /* When video ends on mobile, ensure it stays frozen */
+                animation: none !important;
+                -webkit-animation: none !important;
+                transition: none !important;
+                -webkit-transition: none !important;
+            }
+        }
+        
+        /* Additional browser-specific video control overrides */
+        .hero-background-video::-moz-media-controls {
+            display: none !important;
+        }
+        
+        .hero-background-video::-ms-media-controls {
+            display: none !important;
+        }
+        
+        .hero-background-video::-o-media-controls {
+            display: none !important;
+        }
+        
+        /* Mobile landscape orientation video fitting */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .hero-background-video {
+                /* Ensure video fits properly in landscape mode */
+                width: 100vw;
+                height: 100vh;
+                min-width: 100vw;
+                min-height: 100vh;
+                
+                /* Optimize for landscape orientation */
+                object-fit: cover;
+                object-position: center center;
+                
+                /* Remove transforms for better mobile performance */
+                transform: none !important;
+                -webkit-transform: none !important;
+            }
+        }
+        
+        /* Extra small mobile devices */
+        @media (max-width: 360px) {
+            .hero-background-video {
+                /* Ensure video fits on very small screens */
+                width: 100vw;
+                height: 100vh;
+                min-width: 100vw;
+                min-height: 100vh;
+                
+                /* Optimize for extra small devices */
+                object-fit: cover;
+                object-position: center center;
+                
+                /* Remove any transforms */
+                transform: none !important;
+                -webkit-transform: none !important;
+            }
         }
 
         /* Ensure overlay layers are properly positioned */
@@ -928,6 +1061,9 @@
                 padding: 0 16px;
                 /* Use scroll on mobile to avoid iOS Safari issues */
                 background-attachment: scroll;
+                /* Ensure proper mobile viewport handling */
+                min-height: 100vh;
+                height: 100vh;
             }
             
             .hero-content {
@@ -973,6 +1109,26 @@
                 /* Force hardware acceleration on mobile */
                 -webkit-transform: translate3d(0, 0, 0);
                 transform: translate3d(0, 0, 0);
+                
+                /* Enhanced mobile video fitting */
+                width: 100vw;
+                height: 100vh;
+                min-width: 100vw;
+                min-height: 100vh;
+                max-width: 100vw;
+                max-height: 100vh;
+                
+                /* Ensure video covers the entire mobile viewport */
+                object-fit: cover;
+                object-position: center center;
+                
+                /* Mobile-specific positioning adjustments */
+                transform: none;
+                -webkit-transform: none;
+                
+                /* Optimize for mobile performance */
+                will-change: auto;
+                -webkit-will-change: auto;
             }
         }
         
@@ -1007,14 +1163,32 @@
                 font-size: 16px;
             }
             
-            /* Additional small mobile video optimizations */
+            /* Enhanced small mobile video optimizations */
             .hero-background-video {
                 /* Ensure video works well on very small screens */
-                object-position: center center;
+                width: 100vw;
+                height: 100vh;
+                min-width: 100vw;
+                min-height: 100vh;
                 
                 /* Optimize for small mobile devices */
-                -webkit-transform: translate3d(0, 0, 0);
-                transform: translate3d(0, 0, 0);
+                object-fit: cover;
+                object-position: center center;
+                
+                /* Remove any transforms that might cause issues on small screens */
+                transform: none !important;
+                -webkit-transform: none !important;
+                
+                /* Ensure video fills the entire small mobile viewport */
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                
+                /* Optimize performance for small devices */
+                will-change: auto;
+                -webkit-will-change: auto;
             }
         }
 
@@ -1641,9 +1815,7 @@
                autoplay 
                muted 
                playsinline 
-               loop 
                preload="metadata" 
-               poster="startup_logo.jpg"
                disablePictureInPicture
                controlslist="nodownload noplaybackrate nofullscreen">
             <source src="zoominBOT.mp4" type="video/mp4">
@@ -2459,6 +2631,132 @@
                 history.replaceState(null, null, window.location.pathname);
             }
         });
+
+        // Video Control System - Freeze video after ending, play only on page refresh/reload
+        const heroVideo = document.querySelector('.hero-background-video');
+        
+        if (heroVideo) {
+            // Remove loop attribute and handle video ending
+            heroVideo.removeAttribute('loop');
+            
+            // Add CSS class to indicate video has ended
+            heroVideo.addEventListener('ended', function() {
+                // Pause the video to freeze it at the last frame
+                this.pause();
+                this.classList.add('ended');
+                console.log('Video ended and frozen at last frame');
+                
+                // Ensure video stays at the last frame
+                this.currentTime = this.duration;
+            });
+            
+            // Event listener for when video can play
+            heroVideo.addEventListener('canplay', function() {
+                // Only play if this is a fresh page load (not a navigation)
+                if (performance.navigation.type === 0) { // 0 = page load/reload
+                    this.play().catch(error => {
+                        console.log('Video autoplay failed:', error);
+                    });
+                }
+            });
+            
+            // Ensure video doesn't loop on any device or browser
+            heroVideo.addEventListener('timeupdate', function() {
+                if (this.currentTime >= this.duration - 0.1) { // Near end of video
+                    this.pause();
+                    this.currentTime = this.duration; // Ensure it's at the very end
+                    this.classList.add('ended');
+                }
+            });
+            
+            // Handle page visibility changes to prevent unwanted playback
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    // Pause video when page is hidden
+                    if (!heroVideo.ended) {
+                        heroVideo.pause();
+                    }
+                }
+            });
+            
+            // Handle page focus/blur to prevent unwanted playback
+            window.addEventListener('blur', function() {
+                if (!heroVideo.ended) {
+                    heroVideo.pause();
+                }
+            });
+            
+            // Ensure video only plays on fresh page loads
+            window.addEventListener('pageshow', function(event) {
+                if (event.persisted) {
+                    // Page was loaded from cache (back/forward navigation)
+                    if (!heroVideo.ended) {
+                        heroVideo.pause();
+                    }
+                }
+            });
+            
+            // Additional event listeners for comprehensive control
+            heroVideo.addEventListener('pause', function() {
+                this.classList.add('paused');
+            });
+            
+            heroVideo.addEventListener('play', function() {
+                this.classList.remove('paused');
+                this.classList.remove('ended');
+            });
+            
+            // Handle video loading to ensure proper behavior
+            heroVideo.addEventListener('loadedmetadata', function() {
+                // Ensure video doesn't have loop attribute
+                if (this.hasAttribute('loop')) {
+                    this.removeAttribute('loop');
+                }
+            });
+            
+            // Handle video seeking to prevent manual manipulation
+            heroVideo.addEventListener('seeking', function() {
+                if (this.ended) {
+                    // Prevent seeking if video has ended
+                    this.currentTime = this.duration;
+                }
+            });
+            
+            // Handle video rate changes to prevent speed manipulation
+            heroVideo.addEventListener('ratechange', function() {
+                // Reset playback rate to normal
+                if (this.playbackRate !== 1) {
+                    this.playbackRate = 1;
+                }
+            });
+            
+            // Ensure video behavior on mobile devices
+            heroVideo.addEventListener('touchstart', function(e) {
+                // Prevent touch interactions with video
+                e.preventDefault();
+                e.stopPropagation();
+            }, { passive: false });
+            
+            // Handle iOS Safari specific behaviors
+            heroVideo.addEventListener('webkitbeginfullscreen', function() {
+                // Prevent fullscreen mode
+                this.webkitExitFullscreen();
+            });
+            
+            // Ensure video doesn't restart on scroll or other events
+            let videoEndedFlag = false;
+            heroVideo.addEventListener('ended', function() {
+                videoEndedFlag = true;
+            });
+            
+            // Prevent video from playing again once it has ended
+            heroVideo.addEventListener('play', function() {
+                if (videoEndedFlag) {
+                    this.pause();
+                    this.currentTime = this.duration;
+                }
+            });
+        }
 
         // Veltra Color Morphing System - Seamless Full Page Background Morphing
         

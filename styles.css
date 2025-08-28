@@ -1694,19 +1694,19 @@ body.va-modal-open {
 
     /* Reduce any unintended horizontal padding that "looks" centered; keep consistent left padding (16–20px) */
     .contact-section {
-        padding: 80px 20px;
+        padding: 80px 6px 80px 6px;
     }
     
     .contact-container {
-        padding: 0 16px;
+        padding: 0 5px;
     }
     
     .contact-info-card {
-        padding: 20px 20px;
+        padding: 6px 6px;
     }
     
     .founder-linkedin-bar {
-        padding: 12px 16px;
+        padding: 4px 5px;
     }
     
     /* Keep the premium dark palette—avoid ivory/white blocks on mobile; use translucent indigo/graphite backgrounds instead */
@@ -1757,6 +1757,98 @@ body.va-modal-open {
     
     .founder-linkedin-bar {
         min-height: 44px;
+    }
+}
+
+/* FAQ Mobile Overrides - Ensure answers fit and wrap properly */
+@media (max-width: 768px) {
+    .faq-section {
+        padding: 80px 20px;
+        min-height: auto;
+    }
+    
+    .faq-container {
+        max-width: 100%;
+        padding: 0 16px;
+    }
+    
+    .faq-header {
+        margin-bottom: 48px;
+    }
+    
+    .faq-title {
+        font-size: clamp(2rem, 5vw, 2.5rem);
+        margin-bottom: 20px;
+    }
+    
+    .faq-intro {
+        font-size: clamp(1rem, 3vw, 1.1rem);
+        max-width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+    }
+    
+    .faq-accordion {
+        gap: 16px;
+    }
+    
+    .faq-item {
+        border-radius: 12px;
+        margin-bottom: 0;
+    }
+    
+    .faq-question {
+        padding: 20px 24px;
+        font-size: clamp(1rem, 3vw, 1.1rem);
+        line-height: 1.3;
+        min-height: 48px;
+    }
+    
+    .faq-answer {
+        /* Ensure answers can expand fully on mobile */
+        max-height: none;
+    }
+    
+    .faq-answer.expanded {
+        max-height: none;
+    }
+    
+    .faq-answer-container {
+        padding: 20px 24px;
+        line-height: 1.5;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+    }
+    
+    .faq-answer blockquote {
+        font-size: clamp(0.9rem, 2.5vw, 0.95rem);
+        line-height: 1.6;
+        padding-left: 16px;
+        margin: 16px 0;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    /* Ensure text doesn't overflow on mobile */
+    .faq-question-text {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+        line-height: 1.3;
+    }
+    
+    /* Mobile touch optimizations */
+    .faq-question {
+        -webkit-tap-highlight-color: rgba(90, 61, 235, 0.3);
+        touch-action: manipulation;
+        user-select: none;
+    }
+    
+    .faq-item:hover {
+        transform: none;
+        border-color: rgba(90, 61, 235, 0.2);
+        box-shadow: 0 0 20px rgba(90, 61, 235, 0.1);
     }
 }
 
@@ -1838,5 +1930,380 @@ body.va-modal-open {
     .revealed {
         opacity: 1 !important;
         transform: none !important;
+    }
+}
+
+/* Comprehensive Mobile-Optimized Book a Demo Form Styles */
+@media (max-width: 767px) {
+    /* Mobile Modal Container */
+    .book-demo-modal .modal-container {
+        margin: 0 16px;
+        transform: translate(-50%, calc(-50% + 8px));
+        max-width: calc(100vw - 32px);
+        width: 100%;
+    }
+    
+    /* Mobile Modal Content */
+    .book-demo-modal .modal-content {
+        padding: 24px 20px;
+        border-radius: 20px;
+        max-height: 85vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch; /* iOS smooth scrolling */
+    }
+    
+    /* Mobile Modal Header */
+    .book-demo-modal .modal-header {
+        margin-bottom: 28px;
+        padding: 0 4px;
+    }
+    
+    .book-demo-modal .modal-header h2 {
+        font-size: 24px;
+        line-height: 1.2;
+        margin-bottom: 12px;
+    }
+    
+    .book-demo-modal .modal-header p {
+        font-size: 15px;
+        line-height: 1.4;
+        color: #B8C2D3;
+    }
+    
+    /* Mobile Form Layout */
+    .book-demo-modal .demo-form {
+        gap: 20px;
+        padding: 0 4px;
+    }
+    
+    /* Mobile Form Groups */
+    .book-demo-modal .form-group {
+        gap: 10px;
+    }
+    
+    .book-demo-modal .form-group label {
+        font-size: 15px;
+        font-weight: 500;
+        color: #B8C2D3;
+        line-height: 1.3;
+    }
+    
+    /* Mobile Input Fields */
+    .book-demo-modal .form-group input,
+    .book-demo-modal .form-group select {
+        padding: 18px 16px; /* Increased touch target */
+        font-size: 16px; /* Prevents iOS zoom */
+        border-radius: 14px;
+        border-width: 2px;
+        min-height: 56px; /* Minimum touch target size */
+        background: #0F1A2E;
+        border-color: #2A3A5C;
+        color: #D5E4FF;
+        transition: all 0.2s ease;
+    }
+    
+    .book-demo-modal .form-group input::placeholder {
+        color: #7F8AA5;
+        font-size: 15px;
+    }
+    
+    /* Mobile Phone Group */
+    .book-demo-modal .phone-group {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .book-demo-modal .phone-group select {
+        flex: none;
+        min-width: 100%;
+        min-height: 56px;
+        background: #0F1A2E;
+        border-color: #2A3A5C;
+        color: #D5E4FF;
+        font-size: 15px;
+    }
+    
+    .book-demo-modal .phone-group input {
+        flex: 1;
+        min-height: 56px;
+    }
+    
+    /* Mobile Time Group */
+    .book-demo-modal .time-group {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .book-demo-modal .time-group input,
+    .book-demo-modal .time-group select {
+        min-height: 56px;
+        background: #0F1A2E;
+        border-color: #2A3A5C;
+        color: #D5E4FF;
+        font-size: 15px;
+    }
+    
+    /* Mobile Checkbox */
+    .book-demo-modal .checkbox-group {
+        gap: 16px;
+        align-items: flex-start;
+        padding: 8px 0;
+    }
+    
+    .book-demo-modal .checkbox-label {
+        font-size: 15px;
+        line-height: 1.4;
+        color: #B8C2D3;
+        gap: 14px;
+    }
+    
+    .book-demo-modal .checkmark {
+        width: 24px; /* Larger touch target */
+        height: 24px;
+        border-width: 2px;
+        border-radius: 8px;
+        background: #0F1A2E;
+        border-color: #2A3A5C;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+    
+    .book-demo-modal .checkbox-label input[type="checkbox"]:checked + .checkmark {
+        background: #6C63FF;
+        border-color: #6C63FF;
+    }
+    
+    .book-demo-modal .checkbox-label input[type="checkbox"]:checked + .checkmark::after {
+        font-size: 16px;
+    }
+    
+    /* Mobile Submit Button */
+    .book-demo-modal .submit-btn {
+        height: 56px; /* Larger touch target */
+        padding: 0 32px;
+        font-size: 17px;
+        font-weight: 600;
+        border-radius: 28px;
+        background: linear-gradient(135deg, #3B46A8 0%, #6C63FF 100%);
+        color: #DCE6FF;
+        margin-top: 8px;
+        box-shadow: 0 4px 16px rgba(108, 99, 255, 0.3);
+    }
+    
+    .book-demo-modal .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(108, 99, 255, 0.4);
+    }
+    
+    .book-demo-modal .submit-btn:active {
+        transform: scale(0.98);
+        box-shadow: 0 2px 8px rgba(108, 99, 255, 0.3);
+    }
+    
+    /* Mobile Loading State */
+    .book-demo-modal .btn-loading {
+        font-size: 16px;
+        gap: 10px;
+    }
+    
+    .book-demo-modal .spinner {
+        width: 18px;
+        height: 18px;
+        border-width: 2.5px;
+    }
+    
+    /* Mobile Error Messages */
+    .book-demo-modal .error-message {
+        font-size: 14px;
+        color: #FF8FB0;
+        min-height: 20px;
+        margin-top: 4px;
+        padding: 0 4px;
+    }
+    
+    .book-demo-modal .form-group.error input,
+    .book-demo-modal .form-group.error select {
+        border-color: #FF5E8A;
+        box-shadow: 0 0 0 3px rgba(255, 94, 138, 0.15);
+    }
+    
+    /* Mobile Success State */
+    .book-demo-modal .success-state {
+        padding: 32px 20px;
+        text-align: center;
+    }
+    
+    .book-demo-modal .success-icon {
+        width: 72px;
+        height: 72px;
+        font-size: 36px;
+        margin-bottom: 28px;
+    }
+    
+    .book-demo-modal .success-state h3 {
+        font-size: 26px;
+        margin-bottom: 16px;
+        color: #D5E4FF;
+    }
+    
+    .book-demo-modal .success-state p {
+        font-size: 16px;
+        margin-bottom: 12px;
+        color: #B8C2D3;
+    }
+    
+    .book-demo-modal .redirect-text {
+        font-size: 15px;
+        color: #7F8AA5;
+        margin-bottom: 24px;
+    }
+    
+    .book-demo-modal .cancel-link {
+        font-size: 16px;
+        padding: 12px 24px;
+        background: rgba(108, 99, 255, 0.1);
+        border-radius: 20px;
+        display: inline-block;
+        transition: all 0.2s ease;
+    }
+    
+    .book-demo-modal .cancel-link:hover {
+        background: rgba(108, 99, 255, 0.2);
+        color: #8B85FF;
+    }
+    
+    /* Mobile Close Button */
+    .book-demo-modal .modal-close {
+        top: 16px;
+        right: 16px;
+        width: 48px;
+        height: 48px;
+        font-size: 20px;
+        background: rgba(36, 48, 92, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .book-demo-modal .modal-close:hover {
+        background: rgba(36, 48, 92, 1);
+        transform: scale(1.05);
+    }
+    
+    /* Mobile Date/Time Input Optimization */
+    .book-demo-modal input[type="date"],
+    .book-demo-modal input[type="time"] {
+        -webkit-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236C63FF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6,9 12,15 18,9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 16px center;
+        background-size: 16px;
+        padding-right: 48px;
+    }
+    
+    /* Mobile Select Dropdown Styling */
+    .book-demo-modal select {
+        -webkit-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236C63FF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6,9 12,15 18,9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 16px center;
+        background-size: 16px;
+        padding-right: 48px;
+    }
+}
+
+/* Extra Small Mobile Devices */
+@media (max-width: 480px) {
+    .book-demo-modal .modal-container {
+        margin: 0 12px;
+        max-width: calc(100vw - 24px);
+    }
+    
+    .book-demo-modal .modal-content {
+        padding: 20px 16px;
+        border-radius: 18px;
+    }
+    
+    .book-demo-modal .modal-header h2 {
+        font-size: 22px;
+    }
+    
+    .book-demo-modal .demo-form {
+        gap: 18px;
+    }
+    
+    .book-demo-modal .form-group input,
+    .book-demo-modal .form-group select {
+        padding: 16px 14px;
+        min-height: 52px;
+        font-size: 15px;
+    }
+    
+    .book-demo-modal .submit-btn {
+        height: 52px;
+        font-size: 16px;
+        padding: 0 28px;
+    }
+    
+    .book-demo-modal .phone-group,
+    .book-demo-modal .time-group {
+        gap: 10px;
+    }
+}
+
+/* Mobile Landscape Orientation */
+@media (max-width: 767px) and (orientation: landscape) {
+    .book-demo-modal .modal-content {
+        max-height: 75vh;
+        padding: 20px 24px;
+    }
+    
+    .book-demo-modal .demo-form {
+        gap: 16px;
+    }
+    
+    .book-demo-modal .form-group input,
+    .book-demo-modal .form-group select {
+        min-height: 48px;
+        padding: 14px 16px;
+    }
+    
+    .book-demo-modal .submit-btn {
+        height: 48px;
+    }
+}
+
+/* High DPI Mobile Devices */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .book-demo-modal .form-group input,
+    .book-demo-modal .form-group select {
+        border-width: 1.5px;
+    }
+    
+    .book-demo-modal .checkmark {
+        border-width: 1.5px;
+    }
+}
+
+/* Mobile Form Field Autofill Styling */
+@media (max-width: 767px) {
+    .book-demo-modal .form-group input:-webkit-autofill,
+    .book-demo-modal .form-group input:-webkit-autofill:hover,
+    .book-demo-modal .form-group input:-webkit-autofill:focus,
+    .book-demo-modal .form-group input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 30px #0F1A2E inset !important;
+        -webkit-text-fill-color: #D5E4FF !important;
+        border-color: #6C63FF !important;
+        background-color: #0F1A2E !important;
+    }
+    
+    .book-demo-modal .form-group select:-webkit-autofill,
+    .book-demo-modal .form-group select:-webkit-autofill:hover,
+    .book-demo-modal .form-group select:-webkit-autofill:focus,
+    .book-demo-modal .form-group select:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 30px #0F1A2E inset !important;
+        -webkit-text-fill-color: #D5E4FF !important;
+        border-color: #6C63FF !important;
+        background-color: #0F1A2E !important;
     }
 }
