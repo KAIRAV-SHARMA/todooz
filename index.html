@@ -3802,24 +3802,24 @@
             // Create intersection observer for smooth fade-out effect with improved tolerance and hysteresis
             const fadeOutObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
-                    // Add hysteresis: only add fade-out after section is well past viewport midpoint
+                    // Add hysteresis: only add fade-out after section is 95% scrolled past
                     // Remove it only when section re-enters by a comfortable margin
-                    if (entry.intersectionRatio < 0.6) {
-                        // Section is less than 60% visible - add fade-out class to section and all child elements
+                    if (entry.intersectionRatio < 0.05) {
+                        // Section is less than 5% visible (95% scrolled past) - add fade-out class to section and all child elements
                         entry.target.classList.add('fade-out');
                         // Apply fade-out to all child elements for consistent effect
                         const childElements = entry.target.querySelectorAll('.about-header, .about-story, .about-principles, .principle-card, .about-counters, .counter-item');
                         childElements.forEach(el => el.classList.add('fade-out'));
-                    } else if (entry.intersectionRatio > 0.75) {
-                        // Section is more than 75% visible - remove fade-out class from section and all child elements
+                    } else if (entry.intersectionRatio > 0.15) {
+                        // Section is more than 15% visible - remove fade-out class from section and all child elements
                         entry.target.classList.remove('fade-out');
                         const childElements = entry.target.querySelectorAll('.about-header, .about-story, .about-principles, .principle-card, .about-counters, .counter-item');
                         childElements.forEach(el => el.classList.remove('fade-out'));
                     }
-                    // Keep current state if between 60-75% (hysteresis zone)
+                    // Keep current state if between 5-15% (hysteresis zone)
                 });
             }, {
-                threshold: [0.6, 0.75, 0.9, 1.0],
+                threshold: [0.05, 0.15, 0.9, 1.0],
                 rootMargin: '-20% 0px -20% 0px'
             });
 
