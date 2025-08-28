@@ -1,0 +1,3807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veltra Automations — Premium Navigation + Color Morph</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="products-mobile.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;450;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* Premium Navigation Bar Styles */
+        :root {
+            --obsidian-black: #0A0A0A;
+            --deep-navy: #0A1230;
+            --midnight-blue: #0B3D91;
+            --indigo-edge: #1A1A40;
+            --text-default: #A7B0C0;
+            --text-hover: #D5E4FF;
+            --cta-text: #DCE6FF;
+            --cta-fill: #3B46A8;
+            --cta-hover: #4A56C9;
+            --focus-ring: #6C63FF;
+            --shadow-scroll: rgba(10, 18, 48, 0.35);
+            --base-unit: 16px;
+            --bg-color: #0B0B0C;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(90deg, var(--obsidian-black), var(--deep-navy), var(--midnight-blue), var(--indigo-edge));
+            backdrop-filter: blur(10px);
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 1000;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            opacity: 0;
+            transform: translateY(-20px);
+            border-bottom: 1px solid rgba(108, 99, 255, 0.1);
+        }
+
+        .navbar.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Logo */
+        .logo {
+            height: 52px;
+            color: var(--text-hover);
+            font-weight: 600;
+            font-size: 24px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            font-family: 'Space Grotesk', sans-serif;
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        .logo img {
+            height: 100%;
+            width: auto;
+            object-fit: contain;
+            transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            opacity: 0;
+            transform: scale(0.9);
+        }
+
+        .navbar.revealed .logo {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .navbar.revealed .logo img {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .logo:hover {
+            color: var(--cta-text);
+            transform: scale(1.05);
+        }
+
+        .logo:hover img {
+            transform: scale(1.05);
+        }
+
+        /* Navigation Links */
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 48px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-default);
+            text-decoration: none;
+            font-weight: 450;
+            font-size: 16px;
+            position: relative;
+            padding: 8px 16px;
+            transition: all 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            font-family: 'Space Grotesk', sans-serif;
+            border-radius: 8px;
+            margin: 0 -8px;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--focus-ring), var(--text-hover));
+            transition: all 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-hover);
+            text-shadow: 0 0 8px rgba(213, 228, 255, 0.3);
+            background: rgba(108, 99, 255, 0.05);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+            box-shadow: 0 0 12px rgba(108, 99, 255, 0.4);
+        }
+
+
+
+        .nav-links a.active {
+            color: var(--text-hover);
+            font-weight: 600;
+            text-shadow: 0 0 12px rgba(213, 228, 255, 0.5);
+            background: linear-gradient(135deg, rgba(108, 99, 255, 0.1), rgba(122, 60, 244, 0.05));
+            padding: 8px 16px;
+            border-radius: 8px;
+            margin: 0 -8px;
+        }
+
+        .nav-links a.active::after {
+            width: 100%;
+            background: linear-gradient(90deg, var(--focus-ring), var(--focus-ring), var(--text-hover));
+            box-shadow: 0 0 20px rgba(108, 99, 255, 0.6), 0 0 40px rgba(108, 99, 255, 0.3);
+            animation: activeGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes activeGlow {
+            0% {
+                box-shadow: 0 0 20px rgba(108, 99, 255, 0.6), 0 0 40px rgba(108, 99, 255, 0.3);
+            }
+            100% {
+                box-shadow: 0 0 25px rgba(108, 99, 255, 0.8), 0 0 50px rgba(108, 99, 255, 0.4);
+            }
+        }
+
+        /* Enhanced active state with pulsing effect */
+        .nav-links a.active {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-links a.active::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(108, 99, 255, 0.1), transparent);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+
+        /* CTA Button */
+        .cta-button {
+            background: var(--cta-fill);
+            color: var(--cta-text);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 500;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 200ms ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .cta-button:hover {
+            background: var(--cta-hover);
+            transform: translateY(-2px);
+            filter: brightness(1.06);
+        }
+
+        .cta-button:active {
+            transform: translateY(0);
+        }
+
+        .cta-button:focus {
+            outline: 2px solid var(--focus-ring);
+            outline-offset: 2px;
+        }
+
+
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-default);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            transition: color 200ms ease;
+            min-height: 44px; /* Ensure touch target size */
+            min-width: 44px;
+        }
+
+        .mobile-menu-btn:hover {
+            color: var(--text-hover);
+        }
+
+        /* Mobile Overlay */
+        .mobile-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--obsidian-black), var(--deep-navy));
+            backdrop-filter: blur(20px);
+            z-index: 999; /* Lower than modal */
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px;
+        }
+
+        .mobile-overlay.active {
+            display: flex;
+        }
+
+        .mobile-nav-links {
+            list-style: none;
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .mobile-nav-links li {
+            margin: 16px 0;
+        }
+
+        .mobile-nav-links a {
+            color: var(--text-default);
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: 450;
+            line-height: 56px;
+            transition: color 200ms ease;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .mobile-nav-links a:hover {
+            color: var(--text-hover);
+            text-shadow: 0 0 8px rgba(213, 228, 255, 0.3);
+        }
+
+        .mobile-nav-links a.active {
+            color: var(--text-hover);
+            font-weight: 600;
+            text-shadow: 0 0 12px rgba(213, 228, 255, 0.5);
+            position: relative;
+        }
+
+        .mobile-nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            width: 60%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--focus-ring), var(--text-hover));
+            transform: translateX(-50%);
+            border-radius: 2px;
+            box-shadow: 0 0 20px rgba(108, 99, 255, 0.6), 0 0 40px rgba(108, 99, 255, 0.3);
+            animation: activeGlow 2s ease-in-out infinite alternate;
+        }
+
+        .mobile-cta {
+            width: 100%;
+            max-width: 300px;
+            padding: 16px 32px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .close-menu {
+            position: absolute;
+            top: 32px;
+            right: 32px;
+            background: none;
+            border: none;
+            color: var(--text-default);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            transition: color 200ms ease;
+        }
+
+        .close-menu:hover {
+            color: var(--text-hover);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .navbar {
+                height: 64px;
+                padding: 0 24px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .cta-button {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                height: 56px;
+                padding: 0 16px;
+            }
+
+            .logo {
+                height: 38px;
+                font-size: 20px;
+            }
+        }
+
+        /* Mobile Overlay Enhancements */
+        @media (max-width: 1024px) {
+            .mobile-overlay {
+                background: linear-gradient(135deg, var(--obsidian-black), var(--deep-navy));
+                backdrop-filter: blur(20px);
+            }
+
+            .mobile-nav-links {
+                margin-bottom: 48px;
+            }
+
+            .mobile-nav-links li {
+                margin: 16px 0;
+            }
+
+            .mobile-nav-links a {
+                line-height: 52px; /* 52px spacing as specified */
+                font-size: 20px;
+            }
+
+            .mobile-cta {
+                width: 100%;
+                max-width: 300px;
+                padding: 16px 32px;
+                font-size: 18px;
+                position: fixed;
+                bottom: 32px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+
+        /* Reduced Motion Support */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+
+            .nav-links a::after {
+                transition: none;
+            }
+
+            .cta-button:hover {
+                transform: none;
+            }
+        }
+
+        /* Adjust body margin for fixed navbar */
+        body {
+            margin-top: 80px;
+            background: #0B0B0C; /* Initial background color */
+            transition: background-color 0.3s ease;
+        }
+
+        /* Ensure sections have proper spacing */
+        .section {
+            min-height: 100vh;
+            position: relative;
+            background: transparent; /* Remove individual section backgrounds */
+        }
+
+        /* Ensure html element also gets background color */
+        html {
+            background: #0B0B0C;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Ensure all main containers inherit the background */
+        main, .main-content, .page-wrapper {
+            background: transparent;
+        }
+
+        /* Remove any remaining section backgrounds that might interfere */
+        section[id] {
+            background: transparent !important;
+        }
+
+        /* Hero Section Styles */
+        .hero-section {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: 100vh;
+            width: 100%;
+            margin-top: -80px; /* Compensate for body margin */
+            
+            /* Ensure proper stacking context */
+            isolation: isolate;
+            
+            /* CSS custom property for morphing background */
+            --bg-color: #0B0B0C;
+            
+            /* Use fixed background on desktop for parallax effect */
+            background-attachment: fixed;
+        }
+
+        /* Enhanced video positioning */
+        .hero-background-video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+            object-position: center;
+            z-index: 1; /* Above background colors but below text content */
+            opacity: 0.8; /* Adjust opacity for better text visibility */
+            pointer-events: none; /* Prevent video interaction */
+            
+            /* Ensure video doesn't interfere with overlay */
+            mix-blend-mode: normal;
+            
+            /* Mobile video optimizations */
+            -webkit-transform: translateZ(0); /* Force hardware acceleration on iOS */
+            transform: translateZ(0);
+            will-change: transform; /* Optimize for animations */
+            
+            /* Ensure video covers properly on all devices */
+            min-width: 100%;
+            min-height: 100%;
+            
+            /* Ensure video doesn't interfere with text readability */
+            filter: brightness(0.9) contrast(1.1);
+        }
+
+        /* Ensure overlay layers are properly positioned */
+        .hero-background-overlay,
+        .hero-background-overlay::before,
+        .hero-background-overlay::after {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        /* Text content positioning to ensure it's in the clear area */
+        .hero-content {
+            position: relative;
+            z-index: 10; /* Above all overlay layers */
+            max-width: 1200px;
+            padding: 20px 32px 0 32px;
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            
+            /* Ensure text area is properly positioned for cutout */
+            text-align: center;
+            margin: 0 auto;
+            
+            /* Add subtle glow effect to make text area more prominent */
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.05));
+            
+            /* Ensure text remains crisp and readable over video */
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Hero Background Overlay - Covers entire hero section */
+        /* 
+        IMPLEMENTATION:
+        - Rectangular overlay covering entire hero section
+        - Circular clear space in center with 555px radius
+        - Morphing background color overlay covering entire home section
+        - Complete edge-to-edge coverage with no gaps
+        */
+        .hero-background-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 11, 12, 0.6); /* Obsidian Black #0B0B0C with 60% opacity */
+            z-index: 2; /* Above video, below text content */
+            transition: background-color 0.3s ease, opacity 0.3s ease;
+            
+            /* Create circular cutout effect - 555px radius clear area in center */
+            -webkit-mask: radial-gradient(circle 555px at center, transparent 0%, transparent 555px, black 575px);
+            mask: radial-gradient(circle 555px at center, transparent 0%, transparent 555px, black 575px);
+            
+            /* Fallback for browsers that don't support mask */
+            clip-path: circle(555px at center);
+            
+            /* Enhanced overlay for better text contrast */
+            backdrop-filter: blur(1px);
+            -webkit-backdrop-filter: blur(1px);
+        }
+
+        /* Morphing background color overlay - covers entire section */
+        .hero-background-overlay::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-color, rgba(11, 11, 12, 0.7)); /* Uses CSS variable for morphing */
+            opacity: 0.7;
+            z-index: -1;
+            
+            /* Create circular cutout effect matching main overlay */
+            -webkit-mask: radial-gradient(circle 555px at center, transparent 0%, transparent 555px, black 575px);
+            mask: radial-gradient(circle 555px at center, transparent 0%, transparent 555px, black 575px);
+        }
+
+        /* Additional morphing overlay layer for complete coverage */
+        .hero-background-overlay::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-color, rgba(11, 11, 12, 0.5)); /* Uses CSS variable for morphing */
+            opacity: 0.5;
+            z-index: -2;
+            
+            /* Create circular cutout effect matching main overlay */
+            -webkit-mask: radial-gradient(circle 555px at center, transparent 0%, transparent 555px, black 575px);
+            mask: radial-gradient(circle 555px at center, transparent 0%, transparent 555px, black 575px);
+        }
+
+        /* Edge coverage - ensures complete home section coverage */
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-color, rgba(11, 11, 12, 0.8)); /* Uses CSS variable for morphing */
+            opacity: 0.8;
+            z-index: 1; /* Above video, below overlay */
+            pointer-events: none;
+            
+            /* Create circular cutout effect matching main overlay */
+            -webkit-mask: radial-gradient(circle 555px at center, transparent 0%, transparent 555px, black 575px);
+            mask: radial-gradient(circle 555px at center, transparent 0%, transparent 555px, black 575px);
+        }
+
+        /* Responsive circular sizing - maintains 555px radius on all devices */
+        @media (max-width: 768px) {
+            .hero-background-overlay,
+            .hero-background-overlay::before,
+            .hero-background-overlay::after,
+            .hero-section::after {
+                -webkit-mask: radial-gradient(circle 500px at center, transparent 0%, transparent 500px, black 520px);
+                mask: radial-gradient(circle 500px at center, transparent 0%, transparent 500px, black 520px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-background-overlay,
+            .hero-background-overlay::before,
+            .hero-background-overlay::after,
+            .hero-section::after {
+                -webkit-mask: radial-gradient(circle 450px at center, transparent 0%, transparent 450px, black 470px);
+                mask: radial-gradient(circle 450px at center, transparent 0%, transparent 450px, black 470px);
+            }
+        }
+
+        /* Enhanced text visibility with backdrop blur for better contrast */
+        .hero-content::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.02) 0%, transparent 70%);
+            border-radius: 40px;
+            z-index: -1;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+        }
+
+        .hero-content.revealed {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .hero-content.fade-out {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        /* Hook Line - Reduced by 20px from default */
+        .hero-hook {
+            font-size: clamp(1.8rem, 3.6vw, 2.8rem);
+            font-weight: 600;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            font-family: 'Space Grotesk', sans-serif;
+            
+            /* Enhanced text visibility */
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.1));
+        }
+
+        .hook-left {
+            background: linear-gradient(135deg, #6366F1, #7A3CF4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            opacity: 0;
+            transform: translateY(40px) scale(0.8);
+            transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            display: inline-block;
+            filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.12));
+            
+            /* Enhanced visibility in cutout area */
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .hook-right {
+            background: linear-gradient(135deg, #5EA1FF, #7AB8FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            opacity: 0;
+            transform: translateY(40px) scale(0.8);
+            transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            display: inline-block;
+            filter: drop-shadow(0 0 8px rgba(94, 161, 255, 0.12));
+            
+            /* Enhanced visibility in cutout area */
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Sub-Line - Reduced by 20px from default */
+        .hero-subline {
+            font-size: clamp(0.9rem, 1.8vw, 1.0rem);
+            color: #C5CAE9;
+            margin-bottom: 48px;
+            font-weight: 400;
+            opacity: 0;
+            transform: translateY(40px) scale(0.9);
+            transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            font-family: 'Space Grotesk', sans-serif;
+            
+            /* Enhanced visibility in cutout area */
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+            filter: drop-shadow(0 0 10px rgba(197, 202, 233, 0.2));
+        }
+
+        /* CTA Buttons */
+        .hero-ctas {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 64px;
+        }
+
+        .hero-cta-primary {
+            background: #0B3D91;
+            color: var(--cta-text);
+            padding: 16px 32px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 18px;
+            transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 0 20px rgba(122, 60, 244, 0.2);
+            font-family: 'Space Grotesk', sans-serif;
+            opacity: 0;
+            transform: translateY(40px) scale(0.9);
+            
+            /* Enhanced visibility in cutout area */
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+            filter: drop-shadow(0 0 15px rgba(11, 61, 145, 0.3));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .hero-cta-primary:hover {
+            background: #0A2D6B;
+            box-shadow: 0 0 30px rgba(122, 60, 244, 0.4);
+            transform: translateY(-2px);
+            
+            /* Enhanced hover state */
+            border-color: rgba(255, 255, 255, 0.2);
+            filter: drop-shadow(0 0 20px rgba(11, 61, 145, 0.5));
+        }
+
+        .hero-cta-secondary {
+            background: #0FB5BA;
+            color: white;
+            padding: 16px 32px;
+            border: 2px solid #0FB5BA;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 18px;
+            transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            font-family: 'Space Grotesk', sans-serif;
+            opacity: 0;
+            transform: translateY(40px) scale(0.9);
+            
+            /* Enhanced visibility in cutout area */
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+            filter: drop-shadow(0 0 15px rgba(15, 181, 186, 0.3));
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-cta-secondary:hover {
+            background: #0A8A8E;
+            border-color: #0A8A8E;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(15, 181, 186, 0.3);
+            
+            /* Enhanced hover state */
+            filter: drop-shadow(0 0 20px rgba(15, 181, 186, 0.5));
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), 0 0 20px rgba(15, 181, 186, 0.3);
+        }
+
+        /* Reveal Animation Classes - Enhanced Popping Effect */
+        .reveal-hook-left {
+            opacity: 1 !important;
+            transform: translateY(0) scale(1.05) !important;
+            filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.3)) !important;
+        }
+
+        .reveal-hook-right {
+            opacity: 1 !important;
+            transform: translateY(0) scale(1.05) !important;
+            filter: drop-shadow(0 0 20px rgba(94, 161, 255, 0.3)) !important;
+        }
+
+        .reveal-subline {
+            opacity: 1 !important;
+            transform: translateY(0) scale(1.02) !important;
+        }
+
+        .reveal-cta-primary {
+            opacity: 1 !important;
+            transform: translateY(0) scale(1.02) !important;
+            box-shadow: 0 0 30px rgba(122, 60, 244, 0.4) !important;
+        }
+
+        .reveal-cta-secondary {
+            opacity: 1 !important;
+            transform: translateY(0) scale(1.02) !important;
+            box-shadow: 0 0 25px rgba(15, 181, 186, 0.4) !important;
+        }
+
+        /* Enhanced popping animation with gradual fade-in effect */
+        @keyframes popIn {
+            0% {
+                transform: translateY(40px) scale(0.8);
+                opacity: 0;
+            }
+            30% {
+                transform: translateY(25px) scale(0.85);
+                opacity: 0.3;
+            }
+            60% {
+                transform: translateY(10px) scale(0.95);
+                opacity: 0.7;
+            }
+            80% {
+                transform: translateY(-2px) scale(1.03);
+                opacity: 0.9;
+            }
+            100% {
+                transform: translateY(0) scale(1.05);
+                opacity: 1;
+            }
+        }
+
+        @keyframes popInSubline {
+            0% {
+                transform: translateY(40px) scale(0.9);
+                opacity: 0;
+            }
+            25% {
+                transform: translateY(30px) scale(0.92);
+                opacity: 0.2;
+            }
+            50% {
+                transform: translateY(20px) scale(0.95);
+                opacity: 0.5;
+            }
+            75% {
+                transform: translateY(8px) scale(0.98);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(0) scale(1.02);
+                opacity: 1;
+            }
+        }
+
+        @keyframes popInButton {
+            0% {
+                transform: translateY(40px) scale(0.9);
+                opacity: 0;
+            }
+            20% {
+                transform: translateY(32px) scale(0.91);
+                opacity: 0.15;
+            }
+            40% {
+                transform: translateY(24px) scale(0.93);
+                opacity: 0.35;
+            }
+            60% {
+                transform: translateY(16px) scale(0.96);
+                opacity: 0.6;
+            }
+            80% {
+                transform: translateY(6px) scale(0.99);
+                opacity: 0.85;
+            }
+            100% {
+                transform: translateY(0) scale(1.02);
+                opacity: 1;
+            }
+        }
+
+        /* Apply gradual fade-in animations */
+        .reveal-hook-left {
+            animation: popIn 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
+        }
+
+        .reveal-hook-right {
+            animation: popIn 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
+        }
+
+        .reveal-subline {
+            animation: popInSubline 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
+        }
+
+        .reveal-cta-primary {
+            animation: popInButton 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
+        }
+
+        .reveal-cta-secondary {
+            animation: popInButton 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
+        }
+
+        /* Responsive Hero */
+        @media (max-width: 768px) {
+            .hero-section {
+                aspect-ratio: 16/9;
+                padding: 0 16px;
+                /* Use scroll on mobile to avoid iOS Safari issues */
+                background-attachment: scroll;
+            }
+            
+            .hero-content {
+                padding: 20px 16px 0 16px;
+            }
+            
+            .hero-hook {
+                font-size: clamp(1.4rem, 2.8vw, 2.2rem); /* Reduced by ~20% */
+            }
+            
+            .hero-ctas {
+                flex-direction: column;
+                align-items: center;
+                gap: 16px; /* 16px gap as specified */
+            }
+            
+            .hero-cta-primary,
+            .hero-cta-secondary {
+                width: 100%;
+                max-width: 280px;
+                text-align: center;
+                min-height: 44px; /* Ensure tap-friendly size */
+            }
+            
+            /* Mobile video optimizations */
+            .hero-background-video {
+                /* Ensure video works well on all mobile devices */
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                
+                /* Mobile video rendering optimizations */
+                -webkit-backface-visibility: hidden;
+                backface-visibility: hidden;
+                -webkit-perspective: 1000;
+                perspective: 1000;
+                
+                /* Ensure video doesn't interfere with touch interactions */
+                touch-action: none;
+                
+                /* Force hardware acceleration on mobile */
+                -webkit-transform: translate3d(0, 0, 0);
+                transform: translate3d(0, 0, 0);
+            }
+        }
+        
+        /* Desktop Hero - Use fixed background for parallax effect */
+        @media (min-width: 769px) {
+            .hero-section {
+                background-attachment: fixed;
+            }
+            
+            /* Desktop video optimizations */
+            .hero-background-video {
+                /* Ensure video maintains proper positioning on desktop */
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-hook {
+                font-size: clamp(1.2rem, 2.4vw, 1.8rem);
+            }
+            
+            .hero-subline {
+                font-size: clamp(0.8rem, 1.6vw, 0.9rem);
+            }
+            
+            .hero-cta-primary,
+            .hero-cta-secondary {
+                padding: 14px 24px;
+                font-size: 16px;
+            }
+            
+            /* Additional small mobile video optimizations */
+            .hero-background-video {
+                /* Ensure video works well on very small screens */
+                object-position: center center;
+                
+                /* Optimize for small mobile devices */
+                -webkit-transform: translate3d(0, 0, 0);
+                transform: translate3d(0, 0, 0);
+            }
+        }
+
+        /* Reduced Motion Support */
+        @media (prefers-reduced-motion: reduce) {
+            .hero-content,
+            .hook-left,
+            .hook-right,
+            .hero-subline,
+            .hero-cta-primary,
+            .hero-cta-secondary {
+                transition: none !important;
+                animation: none !important;
+            }
+            
+            /* Disable overlay animations for reduced motion */
+            .hero-background-overlay,
+            .hero-background-overlay::before,
+            .hero-background-overlay::after {
+                transition: none !important;
+                filter: none !important;
+            }
+            
+            /* Show overlay immediately without animations */
+            .hero-background-overlay {
+                background: rgba(11, 11, 12, 0.7) !important;
+            }
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .hero-background-overlay {
+                background: rgba(0, 0, 0, 0.8) !important;
+            }
+            
+            .hero-content::before {
+                background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%) !important;
+            }
+            
+            .hero-hook,
+            .hero-subline {
+                text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8) !important;
+            }
+        }
+
+        /* Products Section Styles - Following prod.md specifications */
+        .products-section {
+            padding: 120px 32px;
+            background: transparent; /* Remove individual background - now uses global morphing */
+            color: #A7B0C0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .products-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .products-header {
+            margin-bottom: 80px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .products-header.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .products-title {
+            font-size: clamp(2.5rem, 4vw, 3.5rem);
+            font-weight: 600;
+            background: linear-gradient(135deg, #6366F1, #7A3CF4); /* Electric Violet → Indigo */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 24px;
+            font-family: 'Space Grotesk', sans-serif;
+            filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.12));
+        }
+
+        .products-intro {
+            font-size: clamp(1.1rem, 1.5vw, 1.3rem);
+            color: #C5CAE9; /* Bluish-gray as specified */
+            margin-bottom: 0;
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+            margin-top: 64px;
+            align-items: stretch;
+        }
+
+        .product-card {
+            background: rgba(15, 39, 71, 0.3); /* Semi-transparent overlay instead of solid background */
+            border-radius: 20px;
+            padding: 32px;
+            text-align: left;
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 8px 32px rgba(15, 39, 71, 0.3);
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+        }
+
+        .product-card.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 48px rgba(99, 102, 241, 0.2), 0 0 32px rgba(122, 60, 244, 0.15);
+            border-color: rgba(99, 102, 241, 0.2);
+            background: rgba(15, 39, 71, 0.4), 
+                        radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.1), transparent 70%);
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .card-title {
+            font-size: clamp(1.5rem, 2.2vw, 2rem);
+            font-weight: 600;
+            background: linear-gradient(135deg, #6366F1, #7A3CF4); /* Electric Violet → Indigo */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+            font-family: 'Space Grotesk', sans-serif;
+            filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.15));
+        }
+
+        .card-hook {
+            font-size: clamp(1rem, 1.2vw, 1.1rem);
+            color: #C5CAE9; /* Bluish-gray as specified */
+            margin-bottom: 20px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        .card-description {
+            font-size: clamp(0.9rem, 1vw, 1rem);
+            color: #A7B0C0; /* Light-gray as specified */
+            margin-bottom: 32px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            line-height: 1.6;
+        }
+
+        .card-features {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 32px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+            font-size: clamp(0.85rem, 1vw, 0.95rem);
+            color: #A7B0C0; /* Light-gray as specified */
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        .feature-icon {
+            font-size: 1.1em;
+            flex-shrink: 0;
+            margin-top: 2px;
+            filter: drop-shadow(0 0 4px rgba(99, 102, 241, 0.3));
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover .feature-icon {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.5));
+        }
+
+        .feature-text {
+            flex: 1;
+        }
+
+        .card-cta {
+            display: inline-block;
+            background: linear-gradient(135deg, #3B46A8, #7A3CF4); /* Indigo → Purple */
+            color: #F4F6FF; /* White as specified */
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 500;
+            font-size: 16px;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
+            margin-top: auto;
+            align-self: flex-start;
+        }
+
+        .card-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3), 0 0 16px rgba(122, 60, 244, 0.2);
+        }
+
+        .card-cta:active {
+            transform: translateY(0);
+        }
+
+        .card-cta:focus {
+            outline: 2px solid #6C63FF;
+            outline-offset: 2px;
+        }
+
+        /* Responsive Products */
+        @media (max-width: 1024px) {
+            .products-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 24px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .products-section {
+                padding: 80px 24px;
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .products-header {
+                margin-bottom: 60px;
+            }
+
+            .product-card {
+                padding: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .products-title {
+                font-size: clamp(1.8rem, 3.2vw, 2rem); /* 2rem max as specified */
+            }
+            
+            .product-card {
+                padding: 20px; /* Reduced from 24px to 20px */
+            }
+            
+            .card-cta {
+                padding: 12px 24px; /* Shrink padding */
+                font-size: 14px;
+            }
+        }
+
+        /* About Us Section Styles - Following abtus.md specifications exactly */
+        .about-section {
+            padding: 96px 32px;
+            background: transparent;
+            color: #E6E9F2;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .about-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Section Header */
+        .about-header {
+            margin-bottom: 80px;
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .about-header.revealed {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .about-title {
+            font-size: clamp(2.5rem, 4vw, 3.5rem);
+            font-weight: 600;
+            color: #E6E9F2;
+            margin-bottom: 24px;
+            font-family: 'Space Grotesk', sans-serif;
+            filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.3));
+        }
+
+        .about-intro {
+            font-size: clamp(1.1rem, 1.5vw, 1.3rem);
+            color: #C5CAE9;
+            margin-bottom: 0;
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.7;
+        }
+
+        /* Main Grid */
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            margin-bottom: 80px;
+            align-items: start;
+        }
+
+        /* Left Column - Our Story */
+        .about-story {
+            text-align: left;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .about-story.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .story-title {
+            font-size: clamp(1.8rem, 2.5vw, 2.2rem);
+            font-weight: 500;
+            color: #E6E9F2;
+            margin-bottom: 24px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .story-text {
+            font-size: clamp(1rem, 1.2vw, 1.1rem);
+            color: #E6E9F2;
+            margin-bottom: 20px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            line-height: 1.7;
+        }
+
+        .story-text:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Right Column - Core Principles */
+        .about-principles {
+            text-align: left;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .about-principles.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .principles-title {
+            font-size: clamp(1.8rem, 2.5vw, 2.2rem);
+            font-weight: 500;
+            color: #E6E9F2;
+            margin-bottom: 32px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .principle-card {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.1);
+        }
+
+        .principle-card.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .principle-card:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .principle-name {
+            font-size: clamp(1.2rem, 1.5vw, 1.4rem);
+            font-weight: 600;
+            color: #E6E9F2;
+            margin-bottom: 12px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .principle-description {
+            font-size: clamp(0.95rem, 1.1vw, 1rem);
+            color: #C5CAE9;
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        /* Animated Counters */
+        .about-counters {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 48px;
+            margin-top: 80px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .about-counters.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .counter-item {
+            text-align: center;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .counter-item.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .counter-number {
+            font-size: clamp(2.5rem, 4vw, 3.5rem);
+            font-weight: 700;
+            color: #D5E4FF;
+            margin-bottom: 12px;
+            font-family: 'Space Grotesk', sans-serif;
+            line-height: 1;
+        }
+
+        .counter-label {
+            font-size: clamp(1rem, 1.2vw, 1.1rem);
+            color: #C5CAE9;
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            line-height: 1.4;
+        }
+
+        /* Fade-out effects now handled by section-scoped CSS rules */
+
+        /* Enhanced fade-out for About Us section with smooth transitions */
+
+        /* Removed .is-fading-out rule - now using .fade-out class */
+
+        /* Fade-out effects now handled by section-scoped CSS rules */
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .about-grid {
+                gap: 40px;
+            }
+            
+            .about-counters {
+                gap: 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .about-section {
+                padding: 80px 24px;
+            }
+
+            .about-grid {
+                grid-template-columns: 1fr;
+                gap: 48px;
+                text-align: center;
+            }
+
+            .about-story {
+                text-align: center;
+            }
+
+            .about-principles {
+                text-align: center;
+            }
+
+            .about-counters {
+                grid-template-columns: 1fr;
+                gap: 32px; /* 32px gap as specified */
+            }
+
+            .about-header {
+                margin-bottom: 60px;
+            }
+
+            .about-grid {
+                margin-bottom: 60px;
+            }
+
+            .about-counters {
+                margin-top: 60px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .about-title {
+                font-size: clamp(1.8rem, 3.2vw, 2rem);
+            }
+            
+            .story-title,
+            .principles-title {
+                font-size: clamp(1.4rem, 2.2vw, 1.6rem);
+            }
+            
+            .story-text,
+            .principle-description {
+                font-size: clamp(0.9rem, 1.1vw, 1rem);
+            }
+        }
+
+        /* Ensure the orb system works with the new background system */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            pointer-events: none;
+            z-index: 1;
+            backdrop-filter: blur(2px);
+        }
+
+        /* Browser compatibility and fallback styles */
+        @supports not (mask: radial-gradient(ellipse at center, transparent 0%, transparent 40%, black 60%)) {
+            .hero-background-overlay {
+                /* Fallback for browsers that don't support mask */
+                background: linear-gradient(
+                    135deg,
+                    rgba(11, 11, 12, 0.8) 0%,
+                    rgba(11, 11, 12, 0.6) 25%,
+                    rgba(11, 11, 12, 0.3) 50%,
+                    rgba(11, 11, 12, 0.1) 75%,
+                    transparent 100%
+                );
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar" id="navbar">
+        <!-- Logo -->
+        <a href="#home" class="logo" id="logo">
+            <img src="startup_logo.jpg" alt="Veltra Logo">
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#home" class="nav-link active">Home</a></li>
+            <li><a href="#products" class="nav-link">Products</a></li>
+            <li><a href="#about" class="nav-link">About Us</a></li>
+            <li><a href="#faqs" class="nav-link">FAQ</a></li>
+            <li><a href="#contact" class="nav-link">Contact Us</a></li>
+        </ul>
+
+        <!-- CTA Button -->
+        <a href="#" class="cta-button" id="cta-book-demo-nav" data-open="book-demo">Book a Demo</a>
+
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open mobile menu" aria-expanded="false">
+            ☰
+        </button>
+    </nav>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay">
+        <button class="close-menu" id="closeMenu">✕</button>
+        <ul class="mobile-nav-links">
+            <li><a href="#home" class="mobile-nav-link active">Home</a></li>
+            <li><a href="#products" class="mobile-nav-link">Products</a></li>
+            <li><a href="#about" class="mobile-nav-link">About Us</a></li>
+            <li><a href="#faqs" class="mobile-nav-link">FAQ</a></li>
+            <li><a href="#contact" class="mobile-nav-link">Contact Us</a></li>
+        </ul>
+        <a href="#" class="cta-button mobile-cta" id="cta-book-demo-mobile" data-open="book-demo">Book a Demo</a>
+    </div>
+
+    <!-- Hero Section -->
+    <section id="home" class="section hero-section">
+        <!-- Background Video -->
+        <video class="hero-background-video" 
+               autoplay 
+               muted 
+               playsinline 
+               loop 
+               preload="metadata" 
+               poster="startup_logo.jpg"
+               disablePictureInPicture
+               controlslist="nodownload noplaybackrate nofullscreen">
+            <source src="zoominBOT.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        
+        <!-- Background Overlay -->
+        <div class="hero-background-overlay"></div>
+        
+        <!-- Content Container -->
+        <div class="hero-content">
+                         <!-- Hook Line -->
+             <h1 class="hero-hook">
+                 <span class="hook-left">we build what moves fast</span><br>
+                 <span class="hook-right">we sell what scales</span>
+             </h1>
+            
+            <!-- Sub-Line -->
+            <p class="hero-subline">AI workflows engineered to save time and scale profit.</p>
+            
+            <!-- CTA Buttons -->
+            <div class="hero-ctas">
+                <a href="#" class="hero-cta-primary" id="cta-book-demo-hero" data-open="book-demo">Book a Demo</a>
+                <a href="#products" class="hero-cta-secondary">Explore Products</a>
+            </div>
+            
+            
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="products" class="section products-section">
+        <div class="products-container">
+            <!-- Section Heading -->
+            <div class="products-header">
+                <h2 class="products-title">Our Core Automation Solutions</h2>
+                <p class="products-intro">We build intelligent, high-performance digital assets designed to scale your operations, engage your customers, and drive revenue growth automatically.</p>
+            </div>
+            
+            <!-- Product Cards Grid -->
+            <div class="products-grid">
+                <!-- Card 1: Lead Generation Automation -->
+                <div class="product-card" data-card="1">
+                    <div class="card-content">
+                        <h3 class="card-title">Automated Lead Sourcing</h3>
+                        <p class="card-hook">Instantly build high-quality prospect lists from LinkedIn, complete with verified email addresses.</p>
+                        <p class="card-description">Stop wasting hours on manual prospecting. Our lead generation automation precisely targets your ideal customer profile on LinkedIn, extracts key data, and enriches it with verified professional email addresses. It integrates directly into your sales workflow, delivering a constant stream of qualified leads to your team.</p>
+                        
+                        <ul class="card-features">
+                            <li class="feature-item">
+                                <span class="feature-icon">🎯</span>
+                                <span class="feature-text">Targeted Scraping: Define your audience by industry, role, company size, and more.</span>
+                            </li>
+                            <li class="feature-item">
+                                <span class="feature-icon">✉️</span>
+                                <span class="feature-text">Email Enrichment: Utilizes multiple data sources to find and verify contact information.</span>
+                            </li>
+                            <li class="feature-item">
+                                <span class="feature-icon">🔗</span>
+                                <span class="feature-text">CRM Integration: Automatically sync new leads with your existing CRM platform.</span>
+                            </li>
+                            <li class="feature-item">
+                                <span class="feature-icon">⚖️</span>
+                                <span class="feature-text">Scalable & Compliant: Built to run efficiently while adhering to platform best practices.</span>
+                            </li>
+                        </ul>
+                        
+                        <a href="#" class="card-cta" data-open="book-demo">Generate Leads Faster →</a>
+                    </div>
+                </div>
+                
+                <!-- Card 2: AI Customer Engagement -->
+                <div class="product-card" data-card="2">
+                    <div class="card-content">
+                        <h3 class="card-title">24/7 AI Concierge</h3>
+                        <p class="card-hook">Engage every website visitor, qualify leads, and provide instant support, day or night.</p>
+                        <p class="card-description">Transform your website into an interactive, intelligent conversion tool. Our AI Concierge engages visitors in natural conversation, answers questions, schedules appointments, and qualifies leads in real-time. It learns from your business data to become a true extension of your team, ensuring no opportunity is ever missed.</p>
+                        
+                        <ul class="card-features">
+                            <li class="feature-item">
+                                <span class="feature-icon">⏱</span>
+                                <span class="feature-text">Always-On Availability: Provides instant responses to customer inquiries 24/7/365.</span>
+                            </li>
+                            <li class="feature-item">
+                                <span class="feature-icon">🧠</span>
+                                <span class="feature-text">Intelligent Lead Qualification: Asks targeted questions to identify high-intent prospects.</span>
+                            </li>
+                            <li class="feature-item">
+                                <span class="feature-icon">📚</span>
+                                <span class="feature-text">Knowledge Base Integration: Trains on your documents to provide accurate, consistent answers.</span>
+                            </li>
+                            <li class="feature-item">
+                                <span class="feature-icon">🤝</span>
+                                <span class="feature-text">Seamless Handoff: Escalates complex conversations to your human team without friction.</span>
+                            </li>
+                        </ul>
+                        
+                        <a href="#" class="card-cta" data-open="book-demo">Automate Your Support →</a>
+                    </div>
+                </div>
+                
+                <!-- Card 3: Digital Presence -->
+                <div class="product-card" data-card="3">
+                    <div class="card-content">
+                        <h3 class="card-title">Performance Web Development</h3>
+                        <p class="card-hook">We don't just build websites. We engineer premium digital experiences that perform.</p>
+                        <p class="card-description">Your website is your most important digital asset. We specialize in developing visually stunning, high-speed websites that not only reflect your premium brand but are also engineered for conversion. Built with modern technology and seamless integration with our automation tools, your site becomes the central hub of your automated business engine.</p>
+                        
+                        <ul class="card-features">
+                            <li class="feature-item">
+                                <span class="feature-icon">🎨</span>
+                                <span class="feature-text">Premium & Modern Design: Custom aesthetics that align with your high-tech brand image.</span>
+                            </li>
+                            <li class="feature-item">
+                                <span class="feature-icon">⚡</span>
+                                <span class="feature-text">Blazing-Fast Performance: Optimized for core web vitals to improve user experience and SEO.</span>
+                            </li>
+                            <li class="feature-item">
+                                <span class="feature-icon">📱</span>
+                                <span class="feature-text">Responsive on All Devices: Flawless functionality on desktop, tablet, and mobile.</span>
+                            </li>
+                            <li class="feature-item">
+                                <span class="feature-icon">🤖</span>
+                                <span class="feature-text">Automation-Ready: Built to integrate perfectly with your AI chatbots and lead funnels.</span>
+                            </li>
+                        </ul>
+                        
+                        <a href="#" class="card-cta" data-open="book-demo">Build Your Digital HQ →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Us Section -->
+    <section id="about" class="section about-section">
+        <div class="about-container">
+            <!-- Section Header -->
+            <div class="about-header">
+                <h2 class="about-title">We're the Architects of Your Automated Future.</h2>
+                <p class="about-intro">Veltra Automations was founded on a simple belief: that intelligent automation is the key to unlocking human potential. We handle the repetitive, so you can focus on the revolutionary.</p>
+            </div>
+            
+            <!-- Main Grid -->
+            <div class="about-grid">
+                <!-- Left Column - Our Story -->
+                <div class="about-story">
+                    <h3 class="story-title">Our Story</h3>
+                    <p class="story-text">Businesses today are overwhelmed by endless manual tasks — data entry, repetitive outreach, broken processes that slow growth. Time that could spark innovation is wasted on the mundane.</p>
+                    <p class="story-text">Veltra Automations was born from a passion for AI and efficiency. We design precision-built workflows that free teams from routine, allowing leaders to focus on scaling ideas, revenue, and impact.</p>
+                </div>
+                
+                <!-- Right Column - Core Principles -->
+                <div class="about-principles">
+                    <h3 class="principles-title">Our Core Principles</h3>
+                    
+                    <div class="principle-card" data-principle="1">
+                        <div class="principle-content">
+                            <h4 class="principle-name">Precision Engineering</h4>
+                            <p class="principle-description">Every automation is crafted with care, tested for accuracy, and built to scale seamlessly across your business.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="principle-card" data-principle="2">
+                        <div class="principle-content">
+                            <h4 class="principle-name">Radical Efficiency</h4>
+                            <p class="principle-description">We strip away the unnecessary, designing systems that save hours, cut costs, and multiply ROI from day one.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="principle-card" data-principle="3">
+                        <div class="principle-content">
+                            <h4 class="principle-name">Human-Centric AI</h4>
+                            <p class="principle-description">Technology should empower, not replace. Our solutions put people first, ensuring AI augments human creativity and decision-making.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Animated Counters -->
+            <div class="about-counters">
+                <div class="counter-item" data-counter="1">
+                    <div class="counter-number" data-target="500">0</div>
+                    <div class="counter-label">Automations Deployed</div>
+                </div>
+                
+                <div class="counter-item" data-counter="2">
+                    <div class="counter-number" data-target="30000">0</div>
+                    <div class="counter-label">Hours Saved for Clients</div>
+                </div>
+                
+                <div class="counter-item" data-counter="3">
+                    <div class="counter-number" data-target="12">0</div>
+                    <div class="counter-label">Industries Served</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faqs" class="section faq-section">
+        <div class="faq-container">
+            <!-- Section Header -->
+            <div class="faq-header">
+                <h2 class="faq-title">Frequently Asked Questions</h2>
+                <p class="faq-intro">Everything you need to know about partnering with Veltra Automations to build your intelligent digital workforce.</p>
+            </div>
+            
+            <!-- FAQ Accordion -->
+            <div class="faq-accordion">
+                <!-- FAQ Item 1 -->
+                <div class="faq-item" data-faq="1">
+                    <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-1">
+                        <span class="faq-question-text">What exactly is an AI automation, and how does it help my business?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer" id="faq-answer-1" aria-hidden="true">
+                        <div class="faq-answer-container">
+                        <blockquote>
+                            An AI automation is a custom-built system that uses artificial intelligence to handle repetitive tasks like data entry, lead generation, or reporting. By automating these processes, your team can focus on higher-value work such as strategy and growth — accelerating both efficiency and profitability.
+                        </blockquote>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- FAQ Item 2 -->
+                <div class="faq-item" data-faq="2">
+                    <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-2">
+                        <span class="faq-question-text">How long does it take to build and implement a custom automation?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer" id="faq-answer-2" aria-hidden="true">
+                        <div class="faq-answer-container">
+                        <blockquote>
+                            Simple automations typically take <strong>1–2 weeks</strong> to design and deploy, while more complex workflows may require <strong>3–4 weeks</strong>. During a discovery call, we define the exact scope and timeline tailored to your needs.
+                        </blockquote>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- FAQ Item 3 -->
+                <div class="faq-item" data-faq="3">
+                    <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-3">
+                        <span class="faq-question-text">Is your lead scraping process compliant with platform policies like LinkedIn's?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer" id="faq-answer-3" aria-hidden="true">
+                        <div class="faq-answer-container">
+                        <blockquote>
+                            Yes. Our approach is <strong>ethical and safety-first</strong> — we mimic natural human behavior, respect platform limits, and prioritize account security over aggressive scraping. This ensures your business gains insights without risking bans or restrictions.
+                        </blockquote>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- FAQ Item 4 -->
+                <div class="faq-item" data-faq="4">
+                    <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-4">
+                        <span class="faq-question-text">What kind of ROI can I expect from investing in AI automation?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer" id="faq-answer-4" aria-hidden="true">
+                        <div class="faq-answer-container">
+                        <blockquote>
+                            Clients often see ROI in two ways:<br>
+                            - <strong>Direct:</strong> Reduced man-hours and operational costs.<br>
+                            - <strong>Indirect:</strong> Faster response times, improved customer engagement, and higher conversion rates.<br>
+                            Most businesses experience a positive return <strong>within the first quarter</strong> after deployment.
+                        </blockquote>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- FAQ Item 5 -->
+                <div class="faq-item" data-faq="5">
+                    <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-5">
+                        <span class="faq-question-text">What level of technical expertise do I need to use your automations?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer" id="faq-answer-5" aria-hidden="true">
+                        <div class="faq-answer-container">
+                        <blockquote>
+                            None. Our automations are designed as <strong>done-for-you systems</strong>, requiring zero coding or technical knowledge. We also provide <strong>full training and ongoing support</strong>, so your team can focus on results — not tech setup.
+                        </blockquote>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section contact-section">
+        <div class="contact-container">
+            <!-- Section Header -->
+            <div class="contact-header">
+                <h2 class="contact-title">Let's Build Your Future, Together.</h2>
+                <p class="contact-intro">We're currently accepting new partners. Reach out to us directly to start the conversation about your automation needs.</p>
+            </div>
+            
+            <!-- Main Content Grid (Two Columns) -->
+            <div class="contact-grid">
+                <!-- Left Column — Direct Contact & Socials -->
+                <div class="contact-info">
+                    <div class="contact-section-group">
+                        <h3 class="contact-subheading">Primary Contact</h3>
+                        <p class="contact-description">For all inquiries, please reach us at:</p>
+                        
+                        <div class="contact-methods">
+                            <div class="contact-info-card" role="group" aria-label="Contact information">
+                                <div class="contact-item">
+                                    <svg class="contact-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                        <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5L4 8V6l8 5 8-5v2z"/>
+                                    </svg>
+                                    <a href="mailto:veltraautomations@gmail.com" class="contact-link" aria-label="Email veltraautomations at gmail dot com">
+                                        veltraautomations@gmail.com
+                                    </a>
+                                </div>
+                                <div class="contact-item">
+                                    <svg class="contact-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                        <path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.25c1.12.37 2.33.57 3.58.57a1 1 0 011 1V21a1 1 0 01-1 1C10.3 22 2 13.7 2 3a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.19 2.46.57 3.58a1 1 0 01-.25 1.01l-2.2 2.2z"/>
+                                    </svg>
+                                    <div class="contact-phones">
+                                        <a href="tel:+918968149907" class="contact-link" aria-label="Call plus nine one eight nine six eight one four nine nine zero seven">+91 8968149907</a>
+                                        <a href="tel:+917626943916" class="contact-link" aria-label="Call plus nine one seven six two six nine four three nine one six">+91 7626943916</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-section-group">
+                        <h3 class="contact-subheading">Connect with Us</h3>
+                        <p class="contact-description">Follow us on LinkedIn to stay updated on our latest innovations.</p>
+                        
+                        <a href="https://www.linkedin.com/company/veltra-automations" class="linkedin-link" target="_blank" rel="noopener noreferrer">
+                            <svg class="linkedin-logo" width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Right Column — Meet the Founders -->
+                <div class="founders-info">
+                    <h3 class="founders-title">Meet the Founders</h3>
+                    <p class="founders-description">We believe in building meaningful connections. Reach out to our co-founders directly:</p>
+                    
+                    <div class="founders-list">
+                        <div class="founder-item">
+                            <h4 class="founder-name">Rachit Mehta</h4>
+                            <div class="founder-linkedin-bar">
+                                <a href="https://www.linkedin.com/in/rachit-mehta-b63a832a8?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" 
+                                   class="linkedin-profile-link" target="_blank" rel="noopener noreferrer">
+                                    <svg class="linkedin-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                                    </svg>
+                                    <span class="linkedin-text">Connect on LinkedIn</span>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="founder-item">
+                            <h4 class="founder-name">Kairav Sharma</h4>
+                            <div class="founder-linkedin-bar">
+                                <a href="https://www.linkedin.com/in/kairav-sharma-6b9393376" 
+                                   class="linkedin-profile-link" target="_blank" rel="noopener noreferrer">
+                                    <svg class="linkedin-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                                    </svg>
+                                    <span class="linkedin-text">Connect on LinkedIn</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional CTA -->
+            <div class="contact-cta">
+                <a href="#" class="contact-cta-button" data-open="book-demo">Book Your Free Demo</a>
+                <p class="contact-cta-subtext">No commitment required • 30-minute consultation • Custom automation roadmap</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Book a Demo Modal -->
+    <div id="bookDemoModal" class="book-demo-modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-container">
+            <button class="modal-close" id="modalClose">✕</button>
+            
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Book a Demo</h2>
+                    <p>Let's show you how AI workflows can transform your business</p>
+                </div>
+                
+
+                
+                <form id="bookDemoForm" class="demo-form">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" placeholder="e.g., Rachit Mehta" required>
+                        <div class="error-message" id="nameError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="e.g., rachit@company.com" required>
+                        <div class="error-message" id="emailError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="company">Company name</label>
+                        <input type="text" id="company" name="company" placeholder="e.g., Veltra Automations" required>
+                        <div class="error-message" id="companyError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Phone number</label>
+                        <div class="phone-group">
+                            <select id="phoneCountry" name="phoneCountry">
+                                <option value="+91">+91 (India)</option>
+                                <option value="+1">+1 (US/Canada)</option>
+                                <option value="+44">+44 (UK)</option>
+                                <option value="+971">+971 (UAE)</option>
+                                <option value="+61">+61 (Australia)</option>
+                                <option value="+65">+65 (Singapore)</option>
+                                <option value="+81">+81 (Japan)</option>
+                                <option value="+49">+49 (Germany)</option>
+                                <option value="+33">+33 (France)</option>
+                                <option value="+39">+39 (Italy)</option>
+                                <option value="+86">+86 (China)</option>
+                                <option value="+82">+82 (South Korea)</option>
+                                <option value="+55">+55 (Brazil)</option>
+                                <option value="+52">+52 (Mexico)</option>
+                                <option value="+27">+27 (South Africa)</option>
+                            </select>
+                            <input type="tel" id="phone" name="phone" placeholder="e.g., 9876543210">
+                        </div>
+                        <div class="error-message" id="phoneError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="teamSize">Team size</label>
+                        <select id="teamSize" name="teamSize" required>
+                            <option value="" disabled selected>Select team size</option>
+                            <option value="1-5">1–5</option>
+                            <option value="6-10">6–10</option>
+                            <option value="11-15">11–15</option>
+                            <option value="16-20">16–20</option>
+                            <option value="21-25">21–25</option>
+                            <option value="26-30">26–30</option>
+                            <option value="31-35">31–35</option>
+                            <option value="36-40">36–40</option>
+                            <option value="41-45">41–45</option>
+                            <option value="46-50">46–50</option>
+                            <option value="51-75">51–75</option>
+                            <option value="76-100">76–100</option>
+                            <option value="100+">100+</option>
+                        </select>
+                        <div class="error-message" id="teamSizeError"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="preferredTime">Preferred time</label>
+                        <div class="time-group">
+                            <input type="date" id="preferredDate" name="preferredDate" required>
+                            <select id="preferredTime" name="preferredTime" required>
+                                <option value="" disabled selected>Select time</option>
+                                <option value="09:00">09:00</option>
+                                <option value="09:30">09:30</option>
+                                <option value="10:00">10:00</option>
+                                <option value="10:30">10:30</option>
+                                <option value="11:00">11:00</option>
+                                <option value="11:30">11:30</option>
+                                <option value="12:00">12:00</option>
+                                <option value="12:30">12:30</option>
+                                <option value="13:00">13:00</option>
+                                <option value="13:30">13:30</option>
+                                <option value="14:00">14:00</option>
+                                <option value="14:30">14:30</option>
+                                <option value="15:00">15:00</option>
+                                <option value="15:30">15:30</option>
+                                <option value="16:00">16:00</option>
+                                <option value="16:30">16:30</option>
+                                <option value="17:00">17:00</option>
+                                <option value="17:30">17:30</option>
+                                <option value="18:00">18:00</option>
+                                <option value="18:30">18:30</option>
+                                <option value="19:00">19:00</option>
+                            </select>
+                        </div>
+                        <div class="error-message" id="preferredDateError"></div>
+                        <div class="error-message" id="preferredTimeError"></div>
+                    </div>
+                    
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="consent" name="consent" required>
+                            <span class="checkmark"></span>
+                            I agree to be contacted for this demo.
+                        </label>
+                        <div class="error-message" id="consentError"></div>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        <span class="btn-text">Schedule Demo</span>
+                        <span class="btn-loading" style="display: none;">
+                            <div class="spinner"></div>
+                            Scheduling…
+                        </span>
+                    </button>
+                </form>
+                
+                <!-- Success State -->
+                <div id="successState" class="success-state" style="display: none;">
+                    <div class="success-icon">✓</div>
+                    <h3>Thanks! Your demo request is in.</h3>
+                    <p>We'll email a confirmation shortly.</p>
+                    <p class="redirect-text">Redirecting to home in <span id="countdown">3</span> seconds...</p>
+                    <a href="#" class="cancel-link" id="cancelRedirect">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Toast -->
+    <div id="errorToast" class="error-toast">
+        <div class="toast-content">
+            <span class="toast-message">Something went wrong. Please try again.</span>
+            <button class="toast-close" id="toastClose">✕</button>
+        </div>
+    </div>
+
+    <script>
+        // Premium Navigation Bar Functionality
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+        const closeMenu = document.getElementById('closeMenu');
+
+        // Mobile menu functionality
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileOverlay.classList.add('active');
+            mobileMenuBtn.setAttribute('aria-expanded', 'true');
+            document.body.style.overflow = 'hidden';
+        });
+
+        closeMenu.addEventListener('click', () => {
+            mobileOverlay.classList.remove('active');
+            mobileMenuBtn.setAttribute('aria-expanded', 'false');
+            document.body.style.overflow = '';
+        });
+
+        // Close mobile menu when clicking on a link
+        document.querySelectorAll('.mobile-nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        });
+
+        // Scroll behavior for navbar
+        const navbar = document.getElementById('navbar');
+        let lastScrollTop = 0;
+
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            // Add scrolled class after 24px scroll
+            if (scrollTop > 24) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+
+            lastScrollTop = scrollTop;
+        });
+
+
+
+        // Enhanced ScrollSpy functionality with better accuracy
+        const sections = document.querySelectorAll('.section');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+        
+        // Check if required elements exist
+        if (!sections.length || !navLinks.length || !mobileNavLinks.length) {
+            console.warn('Required navigation elements not found');
+        }
+
+        const observerOptions = {
+            threshold: [0.1, 0.3, 0.5, 0.7, 0.9],
+            rootMargin: '0px 0px -20% 0px'
+        };
+
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
+                    const targetId = entry.target.getAttribute('id');
+                    
+                    // Update desktop navigation
+                    navLinks.forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === `#${targetId}`) {
+                            link.classList.add('active');
+                            console.log(`Active section: ${targetId}`);
+                        }
+                    });
+
+                    // Update mobile navigation
+                    mobileNavLinks.forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === `#${targetId}`) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => {
+            sectionObserver.observe(section);
+        });
+
+        // Additional scroll-based active state management for better responsiveness
+        function updateActiveNavOnScroll() {
+            const scrollPosition = window.scrollY + 100; // Offset for better accuracy
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionBottom = sectionTop + section.offsetHeight;
+                const sectionId = section.getAttribute('id');
+                
+                if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+                    // Update desktop navigation
+                    navLinks.forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === `#${sectionId}`) {
+                            link.classList.add('active');
+                            console.log(`Scroll-based active section: ${sectionId}`);
+                        }
+                    });
+
+                    // Update mobile navigation
+                    mobileNavLinks.forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === `#${sectionId}`) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }
+
+        // Throttled scroll handler for better performance
+        let navScrollTimeout;
+        let isScrolling = false;
+        
+        window.addEventListener('scroll', () => {
+            if (!isScrolling) {
+                isScrolling = true;
+                requestAnimationFrame(() => {
+                    updateActiveNavOnScroll();
+                    isScrolling = false;
+                });
+            }
+        }, { passive: true });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+                
+                // Skip if href is just "#" or empty
+                if (!href || href === '#') {
+                    return;
+                }
+                
+                const target = document.querySelector(href);
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+
+
+        let textRevealTriggered = false;
+
+        // Function to trigger text reveal sequence immediately
+        function triggerTextReveal() {
+            if (textRevealTriggered) return;
+            
+            textRevealTriggered = true;
+            console.log('Triggering text reveal...');
+            
+            // First reveal the navigation bar
+            const navbar = document.querySelector('.navbar');
+            if (navbar) {
+                navbar.classList.add('revealed');
+                console.log('Added revealed class to navbar');
+            }
+            
+            // Then reveal the hero-content container
+            const heroContent = document.querySelector('.hero-content');
+            if (heroContent) {
+                heroContent.classList.add('revealed');
+                console.log('Added revealed class to hero-content');
+            }
+            
+            // Staggered reveal sequence with 150ms intervals
+            const hookLeft = document.querySelector('.hook-left');
+            const hookRight = document.querySelector('.hook-right');
+            const subline = document.querySelector('.hero-subline');
+            const ctaPrimary = document.querySelector('.hero-cta-primary');
+            const ctaSecondary = document.querySelector('.hero-cta-secondary');
+            
+            console.log('Found elements:', { hookLeft, hookRight, subline, ctaPrimary, ctaSecondary });
+            
+            // Sequence: hook-left → hook-right → sub-line → primary CTA → secondary CTA
+            // Start immediately with no delays
+            if (hookLeft) {
+                hookLeft.classList.add('reveal-hook-left');
+                console.log('Added reveal-hook-left class');
+            }
+            if (hookRight) {
+                setTimeout(() => {
+                    hookRight.classList.add('reveal-hook-right');
+                    console.log('Added reveal-hook-right class');
+                }, 150);
+            }
+            if (subline) {
+                setTimeout(() => {
+                    subline.classList.add('reveal-subline');
+                    console.log('Added reveal-subline class');
+                }, 300);
+            }
+            if (ctaPrimary) {
+                setTimeout(() => {
+                    ctaPrimary.classList.add('reveal-cta-primary');
+                    console.log('Added reveal-cta-primary class');
+                }, 450);
+            }
+            if (ctaSecondary) {
+                setTimeout(() => {
+                    ctaSecondary.classList.add('reveal-cta-secondary');
+                    console.log('Added reveal-cta-secondary class');
+                }, 600);
+            }
+        }
+
+        // Trigger text reveal with 5.7 second delay
+        document.addEventListener('DOMContentLoaded', () => {
+            // Scroll to top of page on refresh/load
+            window.scrollTo(0, 0);
+            
+            // 5.7 second delay for dramatic effect
+            setTimeout(triggerTextReveal, 5700);
+        });
+
+        // Also trigger on window load as backup
+        window.addEventListener('load', () => {
+            // Ensure page is at top on load
+            window.scrollTo(0, 0);
+            
+            if (!textRevealTriggered) {
+                // 5.7 second delay from window load
+                setTimeout(triggerTextReveal, 5700);
+            }
+        });
+
+        // Final fallback - force reveal after 6 seconds if still not triggered
+        setTimeout(() => {
+            if (!textRevealTriggered) {
+                console.log('Fallback: forcing text reveal');
+                triggerTextReveal();
+            }
+        }, 6000);
+
+        // Ensure page always starts at hero section on refresh/load
+        function ensureHeroSectionStart() {
+            // Check if there's a hash in the URL
+            if (window.location.hash && window.location.hash !== '#home') {
+                // Remove any hash and scroll to top
+                history.replaceState(null, null, window.location.pathname);
+            }
+            
+            // Force scroll to top
+            window.scrollTo(0, 0);
+            
+            // Also scroll the document element to ensure compatibility
+            if (document.documentElement) {
+                document.documentElement.scrollTop = 0;
+            }
+            if (document.body) {
+                document.body.scrollTop = 0;
+            }
+        }
+
+        // Call on page load
+        ensureHeroSectionStart();
+        
+        // Also handle beforeunload to ensure clean state
+        window.addEventListener('beforeunload', () => {
+            // Remove any hash before page unload
+            if (window.location.hash && window.location.hash !== '#home') {
+                history.replaceState(null, null, window.location.pathname);
+            }
+        });
+
+        // Veltra Color Morphing System - Seamless Full Page Background Morphing
+        
+        // Enhanced color palette with more intermediate shades for ultra-smooth transitions
+        const colors = [
+            '#0B0B0C',      // Obsidian Black (Home)
+            '#0A1230',      // Deep Navy (transition)
+            '#0F2747',      // Deep Sapphire (Products)
+            '#1A1A40',      // Indigo Edge (transition)
+            '#2A1B3D',      // Deep Purple-Blue (About Us)
+            '#3A1B4D',      // Rich Purple (transition)
+            '#4834D4',      // Royal Amethyst (FAQs)
+            '#5E4BCA',      // Digital Lavender (transition)
+            '#7C5BCA'       // Digital Lavender (Contact Us)
+        ];
+
+        // Current state for seamless morphing
+        let currentColorIndex = 0;
+        let morphProgress = 0;
+        let scrollActive = false;
+        let lastScrollY = 0;
+        let ticking = false;
+        let scrollTimeout = null;
+
+        // Seamless full page background color morphing function
+        function updateColorMorph() {
+            const scrollPosition = window.scrollY;
+            const documentHeight = document.documentElement.scrollHeight - window.innerHeight;
+            
+            // Calculate global scroll progress (0 to 1) across the entire page
+            const globalProgress = Math.min(scrollPosition / documentHeight, 1.0);
+            
+            // Map global progress to color transitions across all colors
+            const totalColorTransitions = colors.length - 1;
+            const colorProgress = globalProgress * totalColorTransitions;
+            
+            // Find current color index and local progress
+            currentColorIndex = Math.floor(colorProgress);
+            morphProgress = colorProgress - currentColorIndex;
+            
+            // Ensure we don't exceed array bounds
+            if (currentColorIndex >= colors.length - 1) {
+                currentColorIndex = colors.length - 2;
+                morphProgress = 1.0;
+            }
+
+            // Get the two colors to interpolate between
+            const fromColor = colors[currentColorIndex];
+            const toColor = colors[currentColorIndex + 1];
+            
+            // Create the current morphed color for the entire page
+            const currentColor = interpolateColor(fromColor, toColor, morphProgress);
+            
+            // Apply the morphed color to the body background
+            document.body.style.backgroundColor = currentColor;
+            
+            // Apply the morphed color to all hero overlay layers
+            const overlay = document.querySelector('.hero-background-overlay');
+            if (overlay) {
+                // Main overlay layer
+                const overlayColor = hexToRgba(currentColor, 0.6);
+                overlay.style.backgroundColor = overlayColor;
+                
+                // Update CSS custom property for pseudo-elements
+                overlay.style.setProperty('--bg-color', currentColor);
+                
+                // Update pseudo-element backgrounds directly
+                const overlayBefore = overlay.querySelector('::before');
+                const overlayAfter = overlay.querySelector('::after');
+                
+                // Also update the hero section overlay
+                const heroSection = document.querySelector('.hero-section');
+                if (heroSection) {
+                    heroSection.style.setProperty('--bg-color', currentColor);
+                }
+            }
+            
+            // Also apply to html element for complete coverage
+            document.documentElement.style.backgroundColor = currentColor;
+            
+            // Update CSS custom properties globally for overlay layers
+            document.documentElement.style.setProperty('--bg-color', currentColor);
+        }
+
+        function interpolateColor(color1, color2, factor) {
+            // Apply easing function for smoother transitions
+            const easedFactor = easeInOutQuart(factor);
+            
+            const r1 = parseInt(color1.slice(1, 3), 16);
+            const g1 = parseInt(color1.slice(3, 5), 16);
+            const b1 = parseInt(color1.slice(5, 7), 16);
+            
+            const r2 = parseInt(color2.slice(1, 3), 16);
+            const g2 = parseInt(color2.slice(3, 5), 16);
+            const b2 = parseInt(color2.slice(5, 7), 16);
+            
+            const r = Math.round(r1 + (r2 - r1) * easedFactor);
+            const g = Math.round(g1 + (g2 - g1) * easedFactor);
+            const b = Math.round(b1 + (b2 - b1) * easedFactor);
+            
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        // Helper function to convert hex colors to rgba with transparency
+        function hexToRgba(hexColor, alpha) {
+            // Handle rgb format from interpolateColor
+            if (hexColor.startsWith('rgb(')) {
+                return hexColor.replace('rgb(', 'rgba(').replace(')', `, ${alpha})`);
+            }
+            
+            // Handle hex format
+            const r = parseInt(hexColor.slice(1, 3), 16);
+            const g = parseInt(hexColor.slice(3, 5), 16);
+            const b = parseInt(hexColor.slice(5, 7), 16);
+            
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        }
+
+        // Smooth easing function for ultra-smooth transitions
+        function easeInOutQuart(t) {
+            return t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2;
+        }
+
+        // Fixed scroll handling with debouncing
+        function handleScroll() {
+            const currentScrollY = window.scrollY;
+            const scrollDelta = Math.abs(currentScrollY - lastScrollY);
+            
+            // Clear existing timeout
+            if (scrollTimeout) {
+                clearTimeout(scrollTimeout);
+            }
+            
+            // Update color morphing on every scroll event for smoother transitions
+            if (scrollDelta > 0.5) { // Reduced threshold for more responsive updates
+                scrollActive = true;
+                
+                if (!ticking) {
+                    requestAnimationFrame(() => {
+                        updateColorMorph();
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            }
+            
+            // Set timeout to stop updates after scroll stops
+            scrollTimeout = setTimeout(() => {
+                scrollActive = false;
+            }, 50); // Reduced timeout for more responsive feel
+            
+            lastScrollY = currentScrollY;
+        }
+
+        // Event listeners
+        window.addEventListener('scroll', handleScroll, { passive: true });
+
+        // Initialize
+        updateColorMorph();
+        
+        // Ensure background color is applied on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateColorMorph();
+            
+            // Add smooth transition class after initial load
+            setTimeout(() => {
+                document.body.style.transition = 'background-color 0.3s ease';
+                document.documentElement.style.transition = 'background-color 0.3s ease';
+            }, 100);
+        });
+        
+        // Also update on window resize to handle dynamic content changes
+        window.addEventListener('resize', () => {
+            updateColorMorph();
+            
+            // Update orb system for mobile optimization on resize
+            if (orbSystem) {
+                const isMobile = window.innerWidth <= 768;
+                if (isMobile) {
+                    orbSystem.maxOrbsPerSection = 15;
+                    orbSystem.orbsPerSpawn = 3;
+                    orbSystem.spawnInterval = 4000;
+                } else {
+                    orbSystem.maxOrbsPerSection = 25;
+                    orbSystem.orbsPerSpawn = 5;
+                    orbSystem.spawnInterval = 3000;
+                }
+            }
+        });
+        
+        // New Orb System - Spawn at bottom of each section, 10 every 2 seconds
+        class OrbSystem {
+            constructor() {
+                this.orbs = [];
+                this.maxOrbsPerSection = 25; // Reduced from 50 for better performance
+                this.spawnInterval = 3000; // Increased from 2 seconds for better performance
+                this.orbsPerSpawn = 5; // Reduced from 10 for better performance
+                this.lastSpawn = Date.now();
+                this.sections = document.querySelectorAll('.section');
+                this.isActive = true; // Allow disabling for performance
+                
+                // Mobile optimization - reduce orbs on smaller screens
+                if (window.innerWidth <= 768) {
+                    this.maxOrbsPerSection = 15; // Further reduced for mobile
+                    this.orbsPerSpawn = 3; // Fewer orbs per spawn on mobile
+                    this.spawnInterval = 4000; // Slower spawning on mobile
+                }
+            }
+
+            spawnOrbs() {
+                // Performance check - disable on low-end devices
+                if (!this.isActive || this.orbs.length > 100) {
+                    return;
+                }
+                
+                const now = Date.now();
+                if (now - this.lastSpawn >= this.spawnInterval) {
+                    // Spawn orbs for each section
+                    this.sections.forEach((section, sectionIndex) => {
+                        // Check if section has less than max orbs
+                        const sectionOrbs = this.orbs.filter(orb => orb.sectionIndex === sectionIndex);
+                        if (sectionOrbs.length < this.maxOrbsPerSection) {
+                            // Spawn orbs for this section
+                            for (let i = 0; i < this.orbsPerSpawn; i++) {
+                                if (sectionOrbs.length + i < this.maxOrbsPerSection) {
+                                    this.spawnOrb(section, sectionIndex);
+                                }
+                            }
+                        }
+                    });
+                    this.lastSpawn = now;
+                }
+            }
+
+            spawnOrb(section, sectionIndex) {
+                const orb = document.createElement('div');
+                orb.className = 'orb';
+                orb.sectionIndex = sectionIndex;
+                
+                // Set size based on screen size (mobile optimization)
+                const isMobile = window.innerWidth <= 768;
+                const orbSize = isMobile ? '3.5px' : '5px'; // 3.5px for mobile as specified
+                orb.style.width = orbSize;
+                orb.style.height = orbSize;
+                
+                // Set initial opacity to 0 (fade in)
+                orb.style.opacity = '0';
+                
+                // Random horizontal position within section
+                const sectionRect = section.getBoundingClientRect();
+                const randomX = Math.random() * sectionRect.width;
+                orb.style.left = (section.offsetLeft + randomX) + 'px';
+                
+                // Position at bottom of section
+                const sectionBottom = section.offsetTop + section.offsetHeight;
+                orb.style.bottom = (window.innerHeight - sectionBottom) + 'px';
+                
+                // Animation properties
+                const lifetime = Math.random() * 3 + 4; // 4-7 seconds
+                const swayAmplitude = Math.random() * 8 + 6; // 6-14px sway
+                const swayFreq = Math.random() * 0.8 + 0.6; // 0.6-1.4 frequency
+                const verticalSpeed = Math.random() * 30 + 40; // 40-70px/s speed
+                
+                document.body.appendChild(orb);
+                this.orbs.push(orb);
+
+                let startTime = Date.now();
+                const animateOrb = () => {
+                    const elapsed = (Date.now() - startTime) / 1000;
+                    const progress = elapsed / lifetime;
+                    
+                    if (progress >= 1) {
+                        // Fade out at end
+                        if (orb.parentNode) {
+                            orb.parentNode.removeChild(orb);
+                            this.orbs = this.orbs.filter(o => o !== orb);
+                        }
+                        return;
+                    }
+
+                    // Calculate vertical position (upward movement)
+                    const yPos = elapsed * verticalSpeed;
+                    
+                    // Wavy horizontal movement
+                    const swayX = Math.sin(elapsed * swayFreq * 2 * Math.PI) * swayAmplitude;
+                    
+                    // Apply transform
+                    orb.style.transform = `translate(${swayX}px, -${yPos}px)`;
+                    
+                    // Opacity: fade in at start, fade out at end
+                    let opacity;
+                    if (progress <= 0.2) {
+                        // Fade in during first 20%
+                        opacity = (progress / 0.2) * 0.4;
+                    } else if (progress >= 0.8) {
+                        // Fade out during last 20%
+                        opacity = ((1 - progress) / 0.2) * 0.4;
+                    } else {
+                        // Maintain 40% opacity during middle 60%
+                        opacity = 0.4;
+                    }
+                    
+                    orb.style.opacity = opacity;
+                    
+                    requestAnimationFrame(animateOrb);
+                };
+                
+                animateOrb();
+            }
+
+            update() {
+                this.spawnOrbs();
+            }
+        }
+
+        const orbSystem = new OrbSystem();
+
+        // Animation loop for orbs
+        function animateOrbs() {
+            orbSystem.update();
+            requestAnimationFrame(animateOrbs);
+        }
+
+        // Start orb animation with performance monitoring and error handling
+        let frameCount = 0;
+        let lastTime = performance.now();
+        let animationId = null;
+        
+        function animateOrbs() {
+            try {
+                frameCount++;
+                const currentTime = performance.now();
+                
+                // Check performance every 60 frames (1 second at 60fps)
+                if (frameCount % 60 === 0) {
+                    const fps = 1000 / ((currentTime - lastTime) / 60);
+                    if (fps < 30) {
+                        // Disable orbs if performance is poor
+                        orbSystem.isActive = false;
+                        console.log('Performance degraded, disabling orb system');
+                        return; // Stop animation loop
+                    }
+                    lastTime = currentTime;
+                }
+                
+                orbSystem.update();
+                animationId = requestAnimationFrame(animateOrbs);
+            } catch (error) {
+                console.error('Orb animation error:', error);
+                // Stop animation on error to prevent infinite loops
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                }
+            }
+        }
+        
+        // Start animation with error handling
+        try {
+            animateOrbs();
+        } catch (error) {
+            console.error('Failed to start orb animation:', error);
+        }
+
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://frrrtavwvvuiulubfoyl.supabase.co'; // Replace with your actual Supabase URL
+        const SUPABASE_ANON_KEY = 'sb_publishable_MCi-HKpSUf93oHIqhjVhBA_SJ0ykoNj';
+        
+        // Initialize Supabase client
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Book a Demo Form Functionality
+        class BookDemoForm {
+            constructor() {
+                this.modal = document.getElementById('bookDemoModal');
+                this.form = document.getElementById('bookDemoForm');
+                this.submitBtn = document.getElementById('submitBtn');
+                this.successState = document.getElementById('successState');
+                this.errorToast = document.getElementById('errorToast');
+                this.countdown = document.getElementById('countdown');
+                this.redirectTimer = null;
+                this.countdownTimer = null;
+                
+                this.init();
+            }
+
+            init() {
+                // Event listeners for opening modal
+                document.querySelectorAll('[data-open="book-demo"]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.openModal();
+                    });
+                });
+
+                // Close modal events
+                document.getElementById('modalClose').addEventListener('click', () => this.closeModal());
+                this.modal.querySelector('.modal-backdrop').addEventListener('click', () => this.closeModal());
+                
+                // Form submission
+                this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+                
+                // Phone country change
+                document.getElementById('phoneCountry').addEventListener('change', (e) => this.updatePhoneValidation(e));
+                
+                // Cancel redirect
+                document.getElementById('cancelRedirect').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.cancelRedirect();
+                });
+                
+                // Close toast
+                document.getElementById('toastClose').addEventListener('click', () => this.hideToast());
+                
+                // ESC key to close modal
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && this.modal.classList.contains('active')) {
+                        this.closeModal();
+                    }
+                });
+                
+                // Handle form field focus to ensure visibility
+                this.form.addEventListener('focusin', (e) => {
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+                        // Ensure the focused field is visible in the scrollable container
+                        const modalContent = this.modal.querySelector('.modal-content');
+                        if (modalContent) {
+                            const fieldRect = e.target.getBoundingClientRect();
+                            const containerRect = modalContent.getBoundingClientRect();
+                            
+                            // Check if field is partially hidden
+                            if (fieldRect.top < containerRect.top + 20 || fieldRect.bottom > containerRect.bottom - 20) {
+                                e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+                        }
+                    }
+                });
+
+                // Check for hash or route
+                this.checkRoute();
+            }
+
+            checkRoute() {
+                // Check if URL has #book-demo hash
+                if (window.location.hash === '#book-demo') {
+                    this.openModal();
+                }
+                
+                // Check if URL is /book-demo (for mobile fallback)
+                if (window.location.pathname === '/book-demo') {
+                    this.openModal();
+                }
+            }
+
+            openModal() {
+                // Check if mobile (< 768px) and redirect to /book-demo
+                if (window.innerWidth < 768) {
+                    if (window.location.pathname !== '/book-demo') {
+                        window.location.href = '/book-demo';
+                        return;
+                    }
+                }
+
+                this.modal.classList.add('active');
+                
+                // Add body scroll lock and app blur classes
+                document.body.classList.add('va-modal-open');
+                const app = document.getElementById('app') || document.body;
+                app.classList.add('app-blurred');
+                
+                // Ensure form starts at top and focus Name field
+                const modalContent = this.modal.querySelector('.modal-content');
+                if (modalContent) {
+                    // Reset scroll position to top
+                    modalContent.scrollTop = 0;
+                    
+                    // Ensure smooth scrolling behavior
+                    modalContent.style.scrollBehavior = 'smooth';
+                }
+                
+                // Focus first input with slight delay for smooth animation
+                setTimeout(() => {
+                    const nameField = document.getElementById('name');
+                    if (nameField) {
+                        nameField.focus();
+                        // Ensure the Name field is visible and scrolls into view
+                        nameField.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 160);
+
+                // Analytics
+                this.trackEvent('form_open', { source: 'nav', ts: Date.now() });
+            }
+
+            closeModal() {
+                this.modal.classList.remove('active');
+                
+                // Remove body scroll lock and app blur classes
+                document.body.classList.remove('va-modal-open');
+                const app = document.getElementById('app') || document.body;
+                app.classList.remove('app-blurred');
+                
+                this.resetForm();
+                
+                // Clear any timers
+                if (this.redirectTimer) clearTimeout(this.redirectTimer);
+                if (this.countdownTimer) clearInterval(this.countdownTimer);
+            }
+
+            resetForm() {
+                this.form.reset();
+                this.form.style.display = 'block';
+                this.successState.style.display = 'none';
+                this.submitBtn.disabled = false;
+                this.clearErrors();
+            }
+
+            clearErrors() {
+                document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+                document.querySelectorAll('.form-group').forEach(el => el.classList.remove('error'));
+            }
+
+            validateField(field, rules) {
+                const value = field.value.trim();
+                const errorEl = document.getElementById(field.id + 'Error');
+                const formGroup = field.closest('.form-group');
+                
+                // Check if elements exist before proceeding
+                if (!errorEl || !formGroup) {
+                    console.warn('Required DOM elements not found for field:', field.id);
+                    return false;
+                }
+                
+                // Clear previous error
+                errorEl.textContent = '';
+                formGroup.classList.remove('error');
+                
+                // Required validation
+                if (rules.required && !value) {
+                    this.showFieldError(field, 'This field is required.');
+                    return false;
+                }
+                
+                // Skip other validations if not required and empty
+                if (!rules.required && !value) {
+                    return true;
+                }
+                
+                // Length validation
+                if (rules.minLength && value.length < rules.minLength) {
+                    this.showFieldError(field, `Must be at least ${rules.minLength} characters.`);
+                    return false;
+                }
+                
+                if (rules.maxLength && value.length > rules.maxLength) {
+                    this.showFieldError(field, `Must be no more than ${rules.maxLength} characters.`);
+                    return false;
+                }
+                
+                // Pattern validation
+                if (rules.pattern && !rules.pattern.test(value)) {
+                    this.showFieldError(field, rules.errorMessage || 'Invalid format.');
+                    return false;
+                }
+                
+                return true;
+            }
+
+            showFieldError(field, message) {
+                const errorEl = document.getElementById(field.id + 'Error');
+                const formGroup = field.closest('.form-group');
+                
+                // Check if elements exist before proceeding
+                if (!errorEl || !formGroup) {
+                    console.warn('Required DOM elements not found for field:', field.id);
+                    return;
+                }
+                
+                errorEl.textContent = message;
+                formGroup.classList.add('error');
+            }
+
+            updatePhoneValidation() {
+                const countryCode = document.getElementById('phoneCountry').value;
+                const phoneInput = document.getElementById('phone');
+                
+                // Clear phone input when country changes
+                phoneInput.value = '';
+                
+                // Set maxlength based on country
+                const countryLengths = {
+                    '+91': 10,  // India
+                    '+1': 10,   // US/Canada
+                    '+44': 10,  // UK
+                    '+971': 9,  // UAE
+                    '+61': 9,   // Australia
+                    '+65': 8,   // Singapore
+                    '+81': 10,  // Japan
+                    '+49': 11,  // Germany
+                    '+33': 9,   // France
+                    '+39': 10,  // Italy
+                    '+86': 11,  // China
+                    '+82': 10,  // South Korea
+                    '+55': 11,  // Brazil
+                    '+52': 10,  // Mexico
+                    '+27': 9    // South Africa
+                };
+                
+                phoneInput.maxLength = countryLengths[countryCode] || 10;
+            }
+
+            validateForm() {
+                const validations = {
+                    name: { required: true, minLength: 2, maxLength: 80, pattern: /^[a-zA-Z\s\u00C0-\u017F]+$/ },
+                    email: { required: true, pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, errorMessage: 'Enter a valid email address.' },
+                    company: { required: true, minLength: 2, maxLength: 120, pattern: /^[a-zA-Z0-9\s.,&-]+$/ },
+                    phone: { required: false, pattern: /^\d+$/ },
+                    teamSize: { required: true },
+                    preferredDate: { required: true },
+                    preferredTime: { required: true },
+                    consent: { required: true }
+                };
+                
+                let isValid = true;
+                
+                // Validate each field
+                Object.keys(validations).forEach(fieldId => {
+                    const field = document.getElementById(fieldId);
+                    if (field) {
+                        if (!this.validateField(field, validations[fieldId])) {
+                            isValid = false;
+                        }
+                    }
+                });
+                
+                // Special phone validation
+                const phone = document.getElementById('phone');
+                const countryCode = document.getElementById('phoneCountry').value;
+                if (phone.value.trim()) {
+                    const countryLengths = {
+                        '+91': 10, '+1': 10, '+44': 10, '+971': 9, '+61': 9,
+                        '+65': 8, '+81': 10, '+49': 11, '+33': 9, '+39': 10,
+                        '+86': 11, '+82': 10, '+55': 11, '+52': 10, '+27': 9
+                    };
+                    const expectedLength = countryLengths[countryCode] || 10;
+                    if (phone.value.length !== expectedLength) {
+                        this.showFieldError(phone, 'Enter a valid phone number for the selected country code.');
+                        isValid = false;
+                    }
+                }
+                
+                return isValid;
+            }
+
+            async handleSubmit(e) {
+                e.preventDefault();
+                
+                if (!this.validateForm()) {
+                    return;
+                }
+                
+                // Show loading state
+                this.submitBtn.disabled = true;
+                document.querySelector('.btn-text').style.display = 'none';
+                document.querySelector('.btn-loading').style.display = 'flex';
+                
+                try {
+                    // Collect form data
+                    const formData = new FormData(this.form);
+                    const data = {
+                        name: formData.get('name'),
+                        email: formData.get('email'),
+                        company: formData.get('company'),
+                        phone: formData.get('phone') ? `${formData.get('phoneCountry')}${formData.get('phone')}` : '',
+                        team_size: formData.get('teamSize'),
+                        preferred_time: `${formData.get('preferredDate')}T${formData.get('preferredTime')}`,
+                        consent: formData.get('consent') === 'on',
+                        created_at: new Date().toISOString()
+                    };
+                    
+                    // Submit to Supabase with proper error handling
+                    let result, error;
+                    try {
+                        const response = await supabase
+                            .from('demo_requests')
+                            .insert([data]);
+                        result = response.data;
+                        error = response.error;
+                    } catch (supabaseError) {
+                        console.error('Supabase connection error:', supabaseError);
+                        throw new Error('Failed to connect to form service');
+                    }
+                    
+                    if (error) {
+                        console.error('Supabase data error:', error);
+                        throw new Error('Failed to submit form data');
+                    }
+                    
+                    console.log('Form submitted successfully to Supabase:', result);
+                    
+                    // Call hook if exists
+                    if (window.onBookDemoSubmit) {
+                        window.onBookDemoSubmit(data);
+                    }
+                    
+                    // Analytics
+                    this.trackEvent('form_submit', { 
+                        hasPhone: !!data.phone, 
+                        teamSize: data.teamSize, 
+                        ts: Date.now() 
+                    });
+                    
+                    // Show success state
+                    this.showSuccess();
+                    
+                } catch (error) {
+                    console.error('Form submission error:', error);
+                    this.showError();
+                } finally {
+                    // Reset button state
+                    this.submitBtn.disabled = false;
+                    document.querySelector('.btn-text').style.display = 'flex';
+                    document.querySelector('.btn-loading').style.display = 'none';
+                }
+            }
+
+            showSuccess() {
+                this.form.style.display = 'none';
+                this.successState.style.display = 'block';
+                
+                // Analytics
+                this.trackEvent('form_success', { ts: Date.now() });
+                
+                // Start countdown
+                let count = 3;
+                this.countdown.textContent = count;
+                
+                this.countdownTimer = setInterval(() => {
+                    count--;
+                    this.countdown.textContent = count;
+                    
+                    if (count <= 0) {
+                        clearInterval(this.countdownTimer);
+                        this.redirectToThankYou();
+                    }
+                }, 1000);
+                
+                // Auto redirect after 3 seconds
+                this.redirectTimer = setTimeout(() => {
+                    this.redirectToThankYou();
+                }, 3000);
+            }
+
+            cancelRedirect() {
+                if (this.redirectTimer) clearTimeout(this.redirectTimer);
+                if (this.countdownTimer) clearInterval(this.countdownTimer);
+                this.closeModal();
+            }
+
+            redirectToThankYou() {
+                // Redirect back to home section instead of thank you page
+                window.location.href = '#home';
+                
+                // Close the modal
+                this.closeModal();
+                
+                // Smooth scroll to top of page
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
+
+            showError() {
+                this.errorToast.classList.add('active');
+                setTimeout(() => this.hideToast(), 5000);
+                
+                // Analytics
+                this.trackEvent('form_error', { code: 'submission_failed', ts: Date.now() });
+            }
+
+            hideToast() {
+                this.errorToast.classList.remove('active');
+            }
+
+            trackEvent(eventName, payload) {
+                if (window.vaTrack) {
+                    window.vaTrack(eventName, payload);
+                }
+            }
+        }
+
+        // Initialize the form when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            // Ensure all required elements exist before initializing
+            const requiredElements = [
+                'bookDemoModal',
+                'bookDemoForm',
+                'submitBtn',
+                'successState',
+                'errorToast',
+                'countdown'
+            ];
+            
+            const missingElements = requiredElements.filter(id => !document.getElementById(id));
+            
+            if (missingElements.length > 0) {
+                console.error('Missing required DOM elements:', missingElements);
+                return;
+            }
+            
+            try {
+                new BookDemoForm();
+                console.log('BookDemoForm initialized successfully');
+            } catch (error) {
+                console.error('Error initializing BookDemoForm:', error);
+                // Show user-friendly error message
+                const errorToast = document.getElementById('errorToast');
+                if (errorToast) {
+                    errorToast.querySelector('.toast-message').textContent = 'Failed to initialize form. Please refresh the page.';
+                    errorToast.classList.add('active');
+                }
+            }
+
+                    // Enhanced video autoplay for mobile optimization with proper error handling
+                    const backgroundVideo = document.querySelector('.hero-background-video');
+                    if (backgroundVideo) {
+                        // Force essential video properties for mobile autoplay
+                        backgroundVideo.muted = true;
+                        backgroundVideo.playsInline = true;
+                        
+                        // Ensure video covers properly on mobile
+                        if (window.innerWidth <= 768) {
+                            backgroundVideo.style.objectFit = 'cover';
+                            backgroundVideo.style.objectPosition = 'center';
+                        }
+                        
+                        // Try to autoplay the video with proper error handling
+                        const playVideo = async () => {
+                            try {
+                                await backgroundVideo.play();
+                                console.log('Video autoplay successful');
+                            } catch (error) {
+                                // Handle autoplay errors gracefully without console errors
+                                if (error.name === 'NotAllowedError') {
+                                    console.log('Autoplay prevented by browser policy');
+                                } else {
+                                    console.log('Video autoplay failed:', error.name);
+                                }
+                                
+                                // Add one-time touchstart listener for mobile devices
+                                const touchHandler = () => {
+                                    backgroundVideo.play().catch(e => {
+                                        // Handle touch play errors gracefully
+                                        if (e.name !== 'NotAllowedError') {
+                                            console.log('Touch play failed:', e.name);
+                                        }
+                                    });
+                                    document.removeEventListener('touchstart', touchHandler);
+                                };
+                                
+                                document.addEventListener('touchstart', touchHandler, { once: true });
+                            }
+                        };
+                        
+                        // Attempt autoplay on DOM ready
+                        playVideo();
+                        
+                        // Also try on window load as backup
+                        window.addEventListener('load', playVideo);
+                        
+                        // When video ends, restart it (since loop attribute is present)
+                        backgroundVideo.addEventListener('ended', () => {
+                            backgroundVideo.currentTime = 0;
+                            backgroundVideo.play().catch(e => {
+                                // Handle loop play errors gracefully
+                                if (e.name !== 'NotAllowedError') {
+                                    console.log('Loop play failed:', e.name);
+                                }
+                            });
+                        });
+                    }
+
+    });
+
+        // Product Section Animations - Following prod.md specifications
+        function initializeProductAnimations() {
+            const productsHeader = document.querySelector('.products-header');
+            const productCards = document.querySelectorAll('.product-card');
+            const sectionTitle = document.querySelector('.section-title');
+            const sectionIntro = document.querySelector('.section-intro');
+            
+            if (!productsHeader || productCards.length === 0) {
+                console.log('Product section elements not found, skipping animations');
+                return;
+            }
+
+            // Mobile Safety Net: Immediately reveal all elements on mobile (≤768px)
+            if (window.innerWidth <= 768) {
+                console.log('Mobile device detected, immediately revealing all product elements');
+                
+                // Reveal header elements immediately
+                if (sectionTitle) sectionTitle.classList.add('revealed');
+                if (sectionIntro) sectionIntro.classList.add('revealed');
+                if (productsHeader) productsHeader.classList.add('revealed');
+                
+                // Reveal all product cards immediately
+                productCards.forEach(card => {
+                    card.classList.add('revealed');
+                });
+                
+                return; // Skip IntersectionObserver on mobile
+            }
+
+            // Create intersection observer for products section (desktop only)
+            const productsObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Reveal header first
+                        if (sectionTitle) sectionTitle.classList.add('revealed');
+                        if (sectionIntro) sectionIntro.classList.add('revealed');
+                        if (productsHeader) productsHeader.classList.add('revealed');
+                        
+                        // Staggered reveal of product cards with 120ms intervals
+                        productCards.forEach((card, index) => {
+                            setTimeout(() => {
+                                card.classList.add('revealed');
+                            }, index * 120);
+                        });
+                        
+                        // Unobserve after animation
+                        productsObserver.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.3,
+                rootMargin: '0px 0px -10% 0px'
+            });
+
+            // Observe the products section
+            const productsSection = document.querySelector('.products-section');
+            if (productsSection) {
+                productsObserver.observe(productsSection);
+            }
+        }
+
+        // About Us Section Animations - Following abtus.md specifications exactly
+        // Enhanced with fade-out effects and re-triggering on each visit
+        function initializeAboutAnimations() {
+            const aboutHeader = document.querySelector('.about-header');
+            const aboutStory = document.querySelector('.about-story');
+            const aboutPrinciples = document.querySelector('.about-principles');
+            const principleCards = document.querySelectorAll('.principle-card');
+            const aboutCounters = document.querySelector('.about-counters');
+            const counterItems = document.querySelectorAll('.counter-item');
+            
+            if (!aboutHeader || !aboutStory || !aboutPrinciples || principleCards.length === 0 || !aboutCounters || counterItems.length === 0) {
+                console.log('About section elements not found, skipping animations');
+                return;
+            }
+
+            // Create intersection observer for about section
+            const aboutObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Section is in view - trigger animations
+                        
+                        // Remove fade-out effects first
+                        const aboutSection = entry.target;
+                        aboutSection.classList.remove('fade-out');
+                        aboutHeader.classList.remove('fade-out');
+                        aboutStory.classList.remove('fade-out');
+                        aboutPrinciples.classList.remove('fade-out');
+                        principleCards.forEach(card => card.classList.remove('fade-out'));
+                        aboutCounters.classList.remove('fade-out');
+                        counterItems.forEach(item => item.classList.remove('fade-out'));
+                        
+                        // Trigger reveal animations
+                        aboutHeader.classList.add('revealed');
+                        
+                        // Reveal story and principles columns
+                        setTimeout(() => {
+                            aboutStory.classList.add('revealed');
+                        }, 200);
+                        
+                        setTimeout(() => {
+                            aboutPrinciples.classList.add('revealed');
+                        }, 400);
+                        
+                        // Staggered reveal of principle cards with 100ms intervals
+                        principleCards.forEach((card, index) => {
+                            setTimeout(() => {
+                                card.classList.add('revealed');
+                            }, 600 + (index * 100));
+                        });
+                        
+                        // Reveal counters section
+                        setTimeout(() => {
+                            aboutCounters.classList.add('revealed');
+                            
+                            // Staggered reveal of counter items with 120ms intervals
+                            counterItems.forEach((item, index) => {
+                                setTimeout(() => {
+                                    item.classList.add('revealed');
+                                    // Start counter animation every time
+                                    animateCounter(item);
+                                }, 1200 + (index * 120));
+                            });
+                        }, 1000);
+                        
+                    } else if (!entry.isIntersecting) {
+                        // Section is out of view - add fade-out effect
+                        const aboutSection = entry.target;
+                        aboutSection.classList.add('fade-out');
+                        aboutHeader.classList.add('fade-out');
+                        aboutStory.classList.add('fade-out');
+                        aboutPrinciples.classList.add('fade-out');
+                        principleCards.forEach(card => card.classList.add('fade-out'));
+                        aboutCounters.classList.add('fade-out');
+                        counterItems.forEach(item => item.classList.add('fade-out'));
+                    }
+                });
+            }, {
+                threshold: 0.3,
+                rootMargin: '0px 0px -10% 0px'
+            });
+
+            // Observe the about section
+            const aboutSection = document.querySelector('.about-section');
+            if (aboutSection) {
+                aboutObserver.observe(aboutSection);
+            }
+        }
+
+        // Enhanced About Us Section Fade-Out with Intersection Observer
+        function initializeAboutFadeOut() {
+            const aboutSection = document.querySelector('.about-section');
+            
+            if (!aboutSection) {
+                console.log('About section not found, skipping fade-out initialization');
+                return;
+            }
+
+            // Create intersection observer for smooth fade-out effect with improved tolerance and hysteresis
+            const fadeOutObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    // Add hysteresis: only add fade-out after section is well past viewport midpoint
+                    // Remove it only when section re-enters by a comfortable margin
+                    if (entry.intersectionRatio < 0.6) {
+                        // Section is less than 60% visible - add fade-out class to section and all child elements
+                        entry.target.classList.add('fade-out');
+                        // Apply fade-out to all child elements for consistent effect
+                        const childElements = entry.target.querySelectorAll('.about-header, .about-story, .about-principles, .principle-card, .about-counters, .counter-item');
+                        childElements.forEach(el => el.classList.add('fade-out'));
+                    } else if (entry.intersectionRatio > 0.75) {
+                        // Section is more than 75% visible - remove fade-out class from section and all child elements
+                        entry.target.classList.remove('fade-out');
+                        const childElements = entry.target.querySelectorAll('.about-header, .about-story, .about-principles, .principle-card, .about-counters, .counter-item');
+                        childElements.forEach(el => el.classList.remove('fade-out'));
+                    }
+                    // Keep current state if between 60-75% (hysteresis zone)
+                });
+            }, {
+                threshold: [0.6, 0.75, 0.9, 1.0],
+                rootMargin: '-20% 0px -20% 0px'
+            });
+
+            // Observe the about section
+            fadeOutObserver.observe(aboutSection);
+        }
+
+        // Counter animation function with easeOutExpo curve
+        function animateCounter(counterItem) {
+            const counterNumber = counterItem.querySelector('.counter-number');
+            const target = parseInt(counterNumber.getAttribute('data-target'));
+            const duration = 2000; // 2 seconds
+            const startTime = Date.now();
+            
+            function updateCounter() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Apply easeOutExpo easing
+                const easedProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+                
+                const currentValue = Math.floor(target * easedProgress);
+                counterNumber.textContent = currentValue.toLocaleString();
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    // Ensure final value is exact
+                    counterNumber.textContent = target.toLocaleString();
+                }
+            }
+            
+            updateCounter();
+        }
+
+        // FAQ Section Animations - Following abtus.md specifications exactly
+        function initializeFAQAnimations() {
+            const faqHeader = document.querySelector('.faq-header');
+            const faqItems = document.querySelectorAll('.faq-item');
+            
+            if (!faqHeader || faqItems.length === 0) {
+                console.log('FAQ section elements not found, skipping animations');
+                return;
+            }
+
+            // Create intersection observer for FAQ section
+            const faqObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Section is in view - trigger animations
+                        
+                        // Remove fade-out effects first
+                        const faqSection = entry.target;
+                        faqSection.classList.remove('fade-out');
+                        faqHeader.classList.remove('fade-out');
+                        faqItems.forEach(item => item.classList.remove('fade-out'));
+                        
+                        // Trigger reveal animations
+                        faqHeader.classList.add('revealed');
+                        
+                        // Staggered reveal of FAQ items with 120ms intervals
+                        faqItems.forEach((item, index) => {
+                            setTimeout(() => {
+                                item.classList.add('revealed');
+                            }, 200 + (index * 120));
+                        });
+                        
+                    } else if (!entry.isIntersecting) {
+                        // Section is out of view - add fade-out effect
+                        const faqSection = entry.target;
+                        faqSection.classList.add('fade-out');
+                        faqHeader.classList.add('fade-out');
+                        faqItems.forEach(item => item.classList.add('fade-out'));
+                    }
+                });
+            }, {
+                threshold: 0.3,
+                rootMargin: '0px 0px -10% 0px'
+            });
+
+            // Observe the FAQ section
+            const faqSection = document.querySelector('.faq-section');
+            if (faqSection) {
+                faqObserver.observe(faqSection);
+            }
+        }
+
+        // FAQ Accordion Functionality
+        function initializeFAQAccordion() {
+            const faqItems = document.querySelectorAll('.faq-item');
+            
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question');
+                const answer = item.querySelector('.faq-answer');
+                const icon = item.querySelector('.faq-icon');
+                
+                if (!question || !answer || !icon) return;
+                
+                question.addEventListener('click', () => {
+                    const isExpanded = question.getAttribute('aria-expanded') === 'true';
+                    
+                    // Close all other FAQ items
+                    faqItems.forEach(otherItem => {
+                        if (otherItem !== item) {
+                            const otherQuestion = otherItem.querySelector('.faq-question');
+                            const otherAnswer = otherItem.querySelector('.faq-answer');
+                            const otherIcon = otherItem.querySelector('.faq-icon');
+                            
+                            if (otherQuestion && otherAnswer && otherIcon) {
+                                otherQuestion.setAttribute('aria-expanded', 'false');
+                                otherAnswer.setAttribute('aria-hidden', 'true');
+                                otherAnswer.classList.remove('expanded');
+                                otherIcon.textContent = '+';
+                            }
+                        }
+                    });
+                    
+                    // Toggle current item
+                    if (isExpanded) {
+                        question.setAttribute('aria-expanded', 'false');
+                        answer.setAttribute('aria-hidden', 'true');
+                        answer.classList.remove('expanded');
+                        icon.textContent = '+';
+                    } else {
+                        question.setAttribute('aria-expanded', 'true');
+                        answer.setAttribute('aria-hidden', 'false');
+                        answer.classList.add('expanded');
+                        icon.textContent = '−';
+                    }
+                });
+                
+                // Keyboard support
+                question.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        question.click();
+                    }
+                });
+            });
+        }
+
+        // Contact Us Section Animations - Following abtus.md specifications exactly
+        function initializeContactAnimations() {
+            const contactHeader = document.querySelector('.contact-header');
+            const contactInfo = document.querySelector('.contact-info');
+            const foundersInfo = document.querySelector('.founders-info');
+            const founderItems = document.querySelectorAll('.founder-item');
+            const linkedinBars = document.querySelectorAll('.founder-linkedin-bar');
+            
+            if (!contactHeader || !contactInfo || !foundersInfo || founderItems.length === 0) {
+                console.log('Contact section elements not found, skipping animations');
+                return;
+            }
+
+            // Create intersection observer for contact section
+            const contactObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Section is in view - trigger animations
+                        
+                        // Remove fade-out effects first
+                        const contactSection = entry.target;
+                        contactSection.classList.remove('fade-out');
+                        contactHeader.classList.remove('fade-out');
+                        contactInfo.classList.remove('fade-out');
+                        foundersInfo.classList.remove('fade-out');
+                        founderItems.forEach(item => item.classList.remove('fade-out'));
+                        linkedinBars.forEach(bar => bar.classList.remove('fade-out'));
+                        
+                        // Trigger reveal animations
+                        contactHeader.classList.add('revealed');
+                        
+                        // Reveal contact info and founders info columns
+                        setTimeout(() => {
+                            contactInfo.classList.add('revealed');
+                        }, 200);
+                        
+                        setTimeout(() => {
+                            foundersInfo.classList.add('revealed');
+                        }, 400);
+                        
+                        // Staggered reveal of founder items with 120ms intervals
+                        founderItems.forEach((item, index) => {
+                            setTimeout(() => {
+                                item.classList.add('revealed');
+                            }, 600 + (index * 120));
+                        });
+                        
+                        // Staggered reveal of LinkedIn bars with 140ms intervals (slightly after founder items)
+                        linkedinBars.forEach((bar, index) => {
+                            setTimeout(() => {
+                                bar.classList.add('revealed');
+                            }, 800 + (index * 140));
+                        });
+                        
+                    } else if (!entry.isIntersecting) {
+                        // Section is out of view - add fade-out effect
+                        const contactSection = entry.target;
+                        contactSection.classList.add('fade-out');
+                        contactHeader.classList.add('fade-out');
+                        contactInfo.classList.add('fade-out');
+                        foundersInfo.classList.add('fade-out');
+                        founderItems.forEach(item => item.classList.add('fade-out'));
+                        linkedinBars.forEach(bar => bar.classList.add('fade-out'));
+                    }
+                });
+            }, {
+                threshold: 0.3,
+                rootMargin: '0px 0px -10% 0px'
+            });
+
+            // Observe the contact section
+            const contactSection = document.querySelector('.contact-section');
+            if (contactSection) {
+                contactObserver.observe(contactSection);
+            }
+        }
+
+        // Initialize FAQ accordion functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeFAQAccordion();
+        });
+
+        // Initialize all section animations after functions are defined with error handling
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                // Initialize Product Section Animations
+                initializeProductAnimations();
+                
+                // Initialize About Us Section Animations
+                initializeAboutAnimations();
+                
+                // Initialize About Us Section Fade-Out
+                initializeAboutFadeOut();
+                
+                // Initialize FAQ Section Animations
+                initializeFAQAnimations();
+                
+                // Initialize Contact Us Section Animations
+                initializeContactAnimations();
+                
+                console.log('All section animations initialized successfully');
+            } catch (error) {
+                console.error('Error initializing section animations:', error);
+                // Fallback: ensure all elements are visible on error
+                document.querySelectorAll('.product-card, .section-title, .section-intro, .faq-item, .principle-card, .founder-item').forEach(el => {
+                    el.classList.add('revealed');
+                });
+            }
+            
+            // Mobile Safety Net: Handle resize and orientation changes
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    try {
+                        // If resized to mobile breakpoint, ensure all product elements are visible
+                        if (window.innerWidth <= 768) {
+                            const productCards = document.querySelectorAll('.product-card');
+                            const sectionTitle = document.querySelector('.section-title');
+                            const sectionIntro = document.querySelector('.section-intro');
+                            const productsHeader = document.querySelector('.products-header');
+                            
+                            if (sectionTitle) sectionTitle.classList.add('revealed');
+                            if (sectionIntro) sectionIntro.classList.add('revealed');
+                            if (productsHeader) productsHeader.classList.add('revealed');
+                            
+                            productCards.forEach(card => {
+                                card.classList.add('revealed');
+                            });
+                            
+                            console.log('Mobile resize detected, ensuring all product elements are visible');
+                        }
+                    } catch (error) {
+                        console.error('Error handling resize:', error);
+                    }
+                }, 250); // Debounce resize events
+            });
+        });
+    </script>
+</body>
+</html>
+
